@@ -12,4 +12,11 @@
   </node>
   <node name="attention" pkg="embodied_attention" type="attention.py">
   </node>
+  <node name="recognize" pkg="embodied_attention" type="recognize.py">
+    <param name="model_path" value="$(find embodied_attention)/model/"/>
+  </node>
+  <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py">
+  </node>
+  <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /roi /robot/eye_tilt/pos /robot/left_eye_pan/pos">
+  </node>
 </launch>
