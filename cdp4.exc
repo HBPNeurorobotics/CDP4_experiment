@@ -5,7 +5,7 @@
     <name>CDP4 attention model</name>
     <thumbnail>cdp4.png</thumbnail>
     <description>Saliency model from Maastricht in closed-loop.</description>
-    <timeout>16000</timeout>
+    <timeout>86400</timeout>
     <configuration type="3d-settings" src="cdp4.3ds"/>
     <maturity>production</maturity>
     <environmentModel src="codejam_2017_tensorflow_world/tensorflow_world.sdf">
