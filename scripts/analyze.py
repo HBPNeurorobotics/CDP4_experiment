@@ -2,8 +2,7 @@ import sys, getopt
 import rosbag
 import matplotlib.pyplot as plt
 
-def plot_rates(bag_file):
-    bag = rosbag.Bag(bag_file)
+def plot_rates(bag, plot):
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     print "Timestamps: " + str(timestamps)
@@ -26,11 +25,11 @@ def plot_rates(bag_file):
     plt.ylabel('#saccades/seconds')
     plt.grid(True)
     plt.plot(normalized_timestamps, rates)
-    plt.savefig(bag_file.split(".")[0] + "_rates.png", dpi=150)
-    plt.show()
+    plt.savefig(bag.filename.split(".")[0] + "_rates.png", dpi=150)
+    if plot:
+        plt.show()
 
-def plot_durations(bag_file):
-    bag = rosbag.Bag(bag_file)
+def plot_durations(bag, plot):
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     print "Timestamps: " + str(timestamps)
@@ -54,11 +53,11 @@ def plot_durations(bag_file):
     plt.plot(durations, label='duration')
     plt.plot(duration_avgs, label='average duration')
     plt.legend()
-    plt.savefig(bag_file.split(".")[0] + "_durations.png", dpi=150)
-    plt.show()
+    plt.savefig(bag.filename.split(".")[0] + "_durations.png", dpi=150)
+    if plot:
+        plt.show()
 
-def plot_targets(bag_file):
-    bag = rosbag.Bag(bag_file)
+def plot_targets(bag, plot):
     pan_values = [msg.message.data for msg in bag.read_messages('/robot/left_eye_pan/pos')]
     tilt_values = [msg.message.data for msg in bag.read_messages('/robot/eye_tilt/pos')]
     print "Pan values: " + str(pan_values)
@@ -85,19 +84,19 @@ def plot_targets(bag_file):
     plt.plot(pan_values, tilt_values)
     for i, xy in enumerate(zip(pan_values, tilt_values)):
         ax.annotate(i, xy=xy, textcoords='data')
-    plt.savefig(bag_file.split(".")[0] + "_targets.png", dpi=fig.dpi)
-    plt.show()
+    plt.savefig(bag.filename.split(".")[0] + "_targets.png", dpi=fig.dpi)
+    if plot:
+        plt.show()
 
-def list_labels(bag_file):
-    bag = rosbag.Bag(bag_file)
+def list_labels(bag):
     labels = [msg.message.data for msg in bag.read_messages('/label')]
     print labels
 
 def main(argv):
-    bag = ''
     cmd = ''
+    plot = False
     try:
-        opts, args = getopt.getopt(argv,"hb:c:",["bag=", "cmd="])
+        opts, args = getopt.getopt(argv,"hpb:c:",["bag=", "cmd="])
     except getopt.GetoptError:
         print 'test.py -b <bagfile> -c <cmd>'
         sys.exit(2)
@@ -105,18 +104,27 @@ def main(argv):
         if opt == '-h':
             print 'test.py -b <bagfile> -c <cmd>'
             sys.exit()
+        elif opt == '-p':
+            plot = True
         elif opt in ("-b", "--bag"):
-            bag = arg
+            bag_file = arg
         elif opt in ("-c", "--cmd"):
             cmd = arg
 
+    bag = rosbag.Bag(bag_file)
+
     if cmd == 'rates':
-        plot_rates(bag)
+        plot_rates(bag, plot)
     elif cmd == 'durations':
-        plot_durations(bag)
+        plot_durations(bag, plot)
     elif cmd == 'targets':
-        plot_targets(bag)
+        plot_targets(bag, plot)
     elif cmd == 'labels':
+        list_labels()
+    elif cmd == 'all':
+        plot_rates(bag, plot)
+        plot_durations(bag, plot)
+        plot_targets(bag, plot)
         list_labels(bag)
     else:
         print 'Command not found'
