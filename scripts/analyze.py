@@ -29,6 +29,34 @@ def plot_rates(bag_file):
     plt.savefig(bag_file.split(".")[0] + "_rates.png", dpi=150)
     plt.show()
 
+def plot_durations(bag_file):
+    bag = rosbag.Bag(bag_file)
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    print "Timestamps: " + str(timestamps)
+
+    start = timestamps[0]
+    stop = timestamps[len(timestamps) - 1]
+    normalized_timestamps = [(t - start) for t in timestamps]
+    durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
+    print "Fixation durations: " + str(durations)
+
+    print str(enumerate(durations))
+    duration_avgs = map(lambda (i, x): sum(durations[0:i+1])/(i+1), enumerate(durations))
+    print "Average fixation durations: " + str(duration_avgs)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('(Average) Fixation durations')
+    plt.xlabel('saccade #')
+    plt.ylabel('seconds')
+    plt.grid(True)
+    plt.plot(durations, label='duration')
+    plt.plot(duration_avgs, label='average duration')
+    plt.legend()
+    plt.savefig(bag_file.split(".")[0] + "_durations.png", dpi=150)
+    plt.show()
+
 def plot_targets(bag_file):
     bag = rosbag.Bag(bag_file)
     pan_values = [msg.message.data for msg in bag.read_messages('/robot/left_eye_pan/pos')]
@@ -84,10 +112,15 @@ def main(argv):
 
     if cmd == 'rates':
         plot_rates(bag)
+    elif cmd == 'durations':
+        plot_durations(bag)
     elif cmd == 'targets':
         plot_targets(bag)
     elif cmd == 'labels':
         list_labels(bag)
+    else:
+        print 'Command not found'
+        print 'Commands: rates, targets, durations, labels'
 
 if __name__ == "__main__":
    main(sys.argv[1:])
