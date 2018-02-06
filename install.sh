@@ -2,6 +2,10 @@
 
 DIR=$PWD
 
+cd ~/.opt/platform_venv
+source bin/activate
+
+cd `dirname $0`
 pip install -r requirements.txt
 
 cd $HBP/GazeboRosPackages/src
