@@ -2,6 +2,26 @@ import sys, getopt
 import rosbag
 import matplotlib.pyplot as plt
 
+def split_bag(bag):
+    print 'Splitting'
+    status_msgs = [msg for msg in bag.read_messages('/status') if msg.message.data == 'reset']
+    timestamps = [t.timestamp for t in status_msgs]
+    if len(timestamps) == 0:
+        print 'No status message found'
+        return
+    print 'Going to split at: ' + str(timestamps)
+
+    bags = [rosbag.Bag(bag.filename.split('.')[0] + ':0.bag', 'w')]
+    i = 0
+    for topic, msg, t in bag.read_messages():
+        if i < len(timestamps) and t >= timestamps[i]:
+            i = i + 1
+            bags.append(rosbag.Bag(bag.filename.split('.')[0] + ':' + str(i) + '.bag', 'w'))
+        bags[i].write(topic, msg, t)
+
+    for b in bags:
+        b.close()
+
 def plot_rates(bag, plot):
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
@@ -113,7 +133,9 @@ def main(argv):
 
     bag = rosbag.Bag(bag_file)
 
-    if cmd == 'rates':
+    if cmd == 'split':
+        split_bag(bag)
+    elif cmd == 'rates':
         plot_rates(bag, plot)
     elif cmd == 'durations':
         plot_durations(bag, plot)
