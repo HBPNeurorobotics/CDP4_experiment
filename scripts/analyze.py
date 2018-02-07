@@ -142,7 +142,7 @@ def main(argv):
     elif cmd == 'targets':
         plot_targets(bag, plot)
     elif cmd == 'labels':
-        list_labels()
+        list_labels(bag)
     elif cmd == 'all':
         plot_rates(bag, plot)
         plot_durations(bag, plot)
