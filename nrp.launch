@@ -17,6 +17,6 @@
   </node>
   <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py">
   </node>
-  <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results">
+  <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results /status">
   </node>
 </launch>

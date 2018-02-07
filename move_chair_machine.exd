@@ -7,7 +7,7 @@ from rospy import ServiceProxy
 
 from nrp_states import SetModelPose
 
-from std_msgs.msg import Float64
+from std_msgs.msg import Float64, String
 from geometry_msgs.msg import Vector3, Quaternion
 from embodied_attention.srv import ResetSaccade, ResetSaccadeRequest
 from ros_holographic.srv import ClearMemory, ClearMemoryRequest, Dump, DumpRequest
@@ -53,11 +53,14 @@ class ResetNodesState(State):
     self._reset_saccade_proxy = rospy.ServiceProxy('/reset_saccade', ResetSaccade)
     self._reset_saccade_msg = ResetSaccadeRequest()
 
+    self._status_pub = rospy.Publisher('/status', String, queue_size=1)
+
   def execute(self, userdata):
     self._clear_memory_proxy(self._clear_memory_msg)
     self._reset_pan_pub.publish(Float64(0.0))
     self._reset_tilt_pub.publish(Float64(0.0))
     self._reset_saccade_proxy(self._reset_saccade_msg)
+    self._status_pub.publish(String('reset'))
     return 'success'
 
 with sm:
