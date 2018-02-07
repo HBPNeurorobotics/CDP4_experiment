@@ -23,6 +23,7 @@ def split_bag(bag):
         b.close()
 
 def plot_rates(bag, plot):
+    print 'Plotting rates'
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     print "Timestamps: " + str(timestamps)
@@ -50,6 +51,7 @@ def plot_rates(bag, plot):
         plt.show()
 
 def plot_durations(bag, plot):
+    print 'Plotting durations'
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     print "Timestamps: " + str(timestamps)
@@ -78,6 +80,7 @@ def plot_durations(bag, plot):
         plt.show()
 
 def plot_targets(bag, plot):
+    print 'Plotting targets'
     pan_values = [msg.message.data for msg in bag.read_messages('/robot/left_eye_pan/pos')]
     tilt_values = [msg.message.data for msg in bag.read_messages('/robot/eye_tilt/pos')]
     print "Pan values: " + str(pan_values)
@@ -97,6 +100,7 @@ def plot_targets(bag, plot):
         plt.show()
 
 def list_labels(bag):
+    print 'Listing labels'
     labels = [msg.message.data for msg in bag.read_messages('/label')]
     print labels
 
