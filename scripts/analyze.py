@@ -83,18 +83,6 @@ def plot_targets(bag, plot):
     print "Pan values: " + str(pan_values)
     print "Tilt values: " + str(tilt_values)
 
-    if 0. not in pan_values or 0. not in tilt_values:
-        print "Error: Couldn't find start"
-        return
-    start = pan_values.index(0.)
-    if start is not tilt_values.index(0.):
-        print "Error: Starts do not match"
-        return
-    print "Start: %i" % start
-
-    pan_values = pan_values[start:]
-    tilt_values = tilt_values[start:]
-
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('Saccade targets')
