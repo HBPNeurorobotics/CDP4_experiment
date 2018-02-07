@@ -26,6 +26,9 @@ def plot_rates(bag, plot):
     print 'Plotting rates'
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    if len(timestamps) == 0:
+        print 'No target message found'
+        return
     print "Timestamps: " + str(timestamps)
     
     start = timestamps[0]
@@ -54,6 +57,9 @@ def plot_durations(bag, plot):
     print 'Plotting durations'
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    if len(timestamps) == 0:
+        print 'No target message found'
+        return
     print "Timestamps: " + str(timestamps)
 
     start = timestamps[0]
