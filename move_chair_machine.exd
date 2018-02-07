@@ -103,5 +103,11 @@ with sm:
   StateMachine.add(
     'export_memory2',
     ExportMemoryState(),
-    transitions = {'success': FINISHED}
+    transitions = {'success': 'reset_nodes2'}
+  )
+
+  StateMachine.add(
+    'reset_nodes2',
+    ResetNodesState(),
+    transitions = {'success': FINISHED }
   )
