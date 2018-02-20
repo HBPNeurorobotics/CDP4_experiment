@@ -10,14 +10,14 @@ pip install -r requirements.txt
 cd $HBP/GazeboRosPackages/src
 
 if cd embodied_attention; then
-  git pull
+  git pull origin master
   cd ..
 else
   git clone git@github.com:HBPNeurorobotics/embodied_attention.git
 fi
 
 if cd holographic; then
-  git pull
+  git pull origin master
   cd ..
 else
   git clone git@github.com:HBPNeurorobotics/holographic.git
