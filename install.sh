@@ -16,14 +16,16 @@ else
   git clone git@github.com:HBPNeurorobotics/embodied_attention.git
 fi
 
-python holographic/vsa/setup.py install --user
-
 if cd holographic; then
   git pull
   cd ..
 else
   git clone git@github.com:HBPNeurorobotics/holographic.git
 fi
+
+cd holographic/vsa
+python setup.py install --user
+cd ../..
 
 cd ..
 catkin_make
