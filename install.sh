@@ -16,6 +16,10 @@ else
   git clone git@github.com:HBPNeurorobotics/embodied_attention.git
 fi
 
+cd embodied_attention/attention
+python setup.py install --user
+cd ../..
+
 if cd holographic; then
   git pull origin master
   cd ..
