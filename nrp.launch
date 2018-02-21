@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="forward" pkg="embodied_attention" type="forward.py" output="screen">
+  <node name="saliency" pkg="embodied_attention" type="saliency.py" output="screen">
     <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
-    <param name="saliency_width" value="256"/>
-    <param name="saliency_height" value="192"/>
     <param name="network_input_width" value="256"/>
     <param name="network_input_height" value="192"/>
     <remap from="/rgb/image_raw" to="/icub_model/left_eye_camera/image_raw"/>
   </node>
-  <node name="saccade" pkg="embodied_attention" type="saccade.py">
+  <node name="saccade" pkg="embodied_attention" type="saccade.py" output="screen">
   </node>
-  <node name="attention" pkg="embodied_attention" type="attention.py">
+  <node name="head_manager" pkg="embodied_attention" type="head_manager.py" output="screen">
+    <param name="saliency_width" value="256"/>
+    <param name="saliency_height" value="192"/>
   </node>
-  <node name="recognize" pkg="embodied_attention" type="recognize.py">
+  <node name="recognize" pkg="embodied_attention" type="recognize.py" output="screen">
     <param name="model_path" value="$(find embodied_attention)/model/"/>
   </node>
-  <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py">
+  <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py" output="screen">
   </node>
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results /status">
   </node>
