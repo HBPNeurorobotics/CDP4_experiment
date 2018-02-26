@@ -1,6 +1,7 @@
 import sys, getopt
 import rosbag
 import matplotlib.pyplot as plt
+import math
 
 def split_bag(bag):
     print 'Splitting'
@@ -105,6 +106,29 @@ def plot_targets(bag, plot):
     if plot:
         plt.show()
 
+def plot_lengths(bag, plot):
+    print 'Plotting lengths'
+    pan_values = [msg.message.data for msg in bag.read_messages('/robot/left_eye_pan/pos')]
+    tilt_values = [msg.message.data for msg in bag.read_messages('/robot/eye_tilt/pos')]
+    print "Pan values: " + str(pan_values)
+    print "Tilt values: " + str(tilt_values)
+
+    pan_lenghts = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
+    tilt_lengths = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
+
+    lengths = map(lambda (x,y): math.sqrt(x*x + y*y), zip(pan_lenghts, tilt_lengths))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Saccade lengths')
+    plt.xlabel('Saccade #')
+    plt.ylabel('Length')
+    plt.grid(True)
+    plt.plot(lengths)
+    plt.savefig(bag.filename.split(".")[0] + "_lengths.png", dpi=fig.dpi)
+    if plot:
+        plt.show()
+
 def list_labels(bag):
     print 'Listing labels'
     labels = [msg.message.data for msg in bag.read_messages('/label')]
@@ -139,12 +163,15 @@ def main(argv):
         plot_durations(bag, plot)
     elif cmd == 'targets':
         plot_targets(bag, plot)
+    elif cmd == 'lengths':
+        plot_lengths(bag, plot)
     elif cmd == 'labels':
         list_labels(bag)
     elif cmd == 'all':
         plot_rates(bag, plot)
         plot_durations(bag, plot)
         plot_targets(bag, plot)
+        plot_lengths(bag, plot)
         list_labels(bag)
     else:
         print 'Command not found'
