@@ -20,7 +20,7 @@
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results /status">
   </node>
 
-  <arg name="image" default="/annotated_image"/>
+  <arg name="image" default="/image_annotated"/>
   <arg name="images_path" default="images"/>
 
   <group ns="hugin_panorama">
