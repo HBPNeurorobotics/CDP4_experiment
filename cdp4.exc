@@ -12,11 +12,6 @@
         <robotPose x="3.305" y="-0.97" z="0.608" ux="0.0" uy="0.0" uz="0.0" theta="0.0"/>
     </environmentModel>
     <bibiConf src="cdp4.bibi"/>
-    <experimentControl>
-      <stateMachine xsi:type="SMACHStateMachine"
-                    id="MoveChairMachine"
-                    src="move_chair_machine.exd"/>
-    </experimentControl>
     <cameraPose>
         <cameraPosition x="3.25" y="4.75" z="4.25"/>
         <cameraLookAt x="0" y="0" z="0.5"/>
