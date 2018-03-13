@@ -1,0 +1,131 @@
+import hbp_nrp_excontrol.nrp_states as states
+from smach import StateMachine
+from smach.state import State
+
+import rospy
+from rospy import ServiceProxy
+
+from nrp_states import SetModelPose
+
+from std_msgs.msg import Float64, String
+from geometry_msgs.msg import Vector3, Quaternion
+from std_srvs.srv import SetBool
+from embodied_attention.srv import ResetSaccade, ResetSaccadeRequest
+from ros_holographic.srv import ClearMemory, ClearMemoryRequest, Dump, DumpRequest
+
+import time
+import os
+
+
+result_dir = "/tmp/%s" % time.strftime("exp_%Y-%m-%d-%H:%M:%S")
+if not os.path.exists(result_dir):
+  os.makedirs(result_dir)
+
+FINISHED = 'FINISHED'
+ERROR = 'ERROR'
+PREEMPTED = 'PREEMPTED'
+preempted = 'preempted'
+
+sm = StateMachine(outcomes=[FINISHED, ERROR, PREEMPTED, preempted])
+
+import hbp_nrp_excontrol.nrp_states as states
+
+class ExportMemoryState(State):
+  def __init__(self, outcomes=['success']):
+    super(ExportMemoryState, self).__init__(outcomes=outcomes)
+    self._export_memory_proxy = rospy.ServiceProxy('/dump', Dump)
+    self._export_memory_msg = DumpRequest()
+ 
+  def execute(self, userdata):
+    self._export_memory_msg.Path = "%s/%s.vec" % (result_dir, time.strftime("%Y-%m-%d-%H:%M:%S"))
+    self._export_memory_proxy(self._export_memory_msg)
+    return 'success'
+
+class ResetNodesState(State):
+  def __init__(self, outcomes=['success']):
+    super(ResetNodesState, self).__init__(outcomes=outcomes)
+
+    self._clear_memory_proxy = rospy.ServiceProxy('/clear_memory', ClearMemory)
+    self._clear_memory_msg = ClearMemoryRequest()
+
+    self._reset_pan_pub = rospy.Publisher('/robot/left_eye_pan/pos', Float64, queue_size=1)
+    self._reset_tilt_pub = rospy.Publisher('/robot/eye_tilt/pos', Float64, queue_size=1)
+
+    self._reset_saccade_proxy = rospy.ServiceProxy('/reset_saccade', ResetSaccade)
+    self._reset_saccade_msg = ResetSaccadeRequest()
+
+    self._status_pub = rospy.Publisher('/status', String, queue_size=1)
+
+  def execute(self, userdata):
+    self._clear_memory_proxy(self._clear_memory_msg)
+    self._reset_pan_pub.publish(Float64(0.0))
+    self._reset_tilt_pub.publish(Float64(0.0))
+    self._reset_saccade_proxy(self._reset_saccade_msg)
+    self._status_pub.publish(String('reset'))
+    return 'success'
+
+class ResetNodesState2(State):
+  def __init__(self, outcomes=['success']):
+    super(ResetNodesState2, self).__init__(outcomes=outcomes)
+
+    self._set_memory_proxy = rospy.ServiceProxy('/memorize', SetBool)
+
+    self._reset_pan_pub = rospy.Publisher('/robot/left_eye_pan/pos', Float64, queue_size=1)
+    self._reset_tilt_pub = rospy.Publisher('/robot/eye_tilt/pos', Float64, queue_size=1)
+
+    self._reset_saccade_proxy = rospy.ServiceProxy('/reset_saccade', ResetSaccade)
+    self._reset_saccade_msg = ResetSaccadeRequest()
+
+    self._status_pub = rospy.Publisher('/status', String, queue_size=1)
+
+  def execute(self, userdata):
+    self._set_memory_proxy(False)
+    self._reset_pan_pub.publish(Float64(0.0))
+    self._reset_tilt_pub.publish(Float64(0.0))
+    self._reset_saccade_proxy(self._reset_saccade_msg)
+    self._status_pub.publish(String('reset'))
+    return 'success'
+
+
+with sm:
+  StateMachine.add(
+    'initial_reset_nodes',
+    ResetNodesState(),
+    transitions = {'success': 'wait'}
+  )
+
+  StateMachine.add(
+    'wait',
+    states.ClockDelayState(waittime=3600),
+    transitions = {'valid': 'wait', 'invalid': 'export_memory'}
+  )
+
+  StateMachine.add(
+    'export_memory',
+    ExportMemoryState(),
+    transitions = {'success': 'move_chair'}
+  )
+
+  StateMachine.add(
+    'move_chair',
+    SetModelPose("officechair_0", Vector3(-2.67558, 0.0, 0.001236), Quaternion(0.0, 0.0, -0.90808776173, 0.418779914747), Vector3(1.0, 1.0, 1.0)),
+    transitions = {'succeeded': 'reset_nodes', 'aborted': ERROR, 'preempted': PREEMPTED}
+  )
+
+  StateMachine.add(
+    'reset_nodes',
+    ResetNodesState2(),
+    transitions = {'success': 'wait2'}
+  )
+
+  StateMachine.add(
+    'wait2',
+    states.ClockDelayState(waittime=3600),
+    transitions = {'valid': 'wait2', 'invalid': 'reset_nodes2'}
+  )
+
+  StateMachine.add(
+    'reset_nodes2',
+    ResetNodesState(),
+    transitions = {'success': FINISHED}
+  )
