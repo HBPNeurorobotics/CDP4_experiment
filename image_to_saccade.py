@@ -9,9 +9,10 @@ from attention import Saliency, Saccade
 model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
 network_input_height = float(rospy.get_param('~network_input_height', '192'))
 network_input_width = float(rospy.get_param('~network_input_width', '256'))
+shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 
 @nrp.MapVariable("saliency", initial_value = Saliency(model_file, network_input_height, network_input_width))
-@nrp.MapVariable("saccade", initial_value = Saccade())
+@nrp.MapVariable("saccade", initial_value = Saccade(shift_activity))
 
 @nrp.MapVariable("potential_target_pub", initial_value = rospy.Publisher("/saccade_potential_target", Point, queue_size=1))
 @nrp.MapVariable("saliency_image_pub", initial_value = rospy.Publisher("/saliency_map_image", Image, queue_size=1))
@@ -20,7 +21,7 @@ network_input_width = float(rospy.get_param('~network_input_width', '256'))
 
 @nrp.MapVariable("last_time", initial_value=None)
 
-@nrp.MapRobotSubscriber("image", Topic("/icub_model/left_eye_camera/image_raw", Image))
+@nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
 @nrp.Neuron2Robot(Topic('/saccade_target', Point))
 def image_to_saccade(t, saliency, saccade, potential_target_pub, saliency_image_pub, bridge, last_time, image):
     import rospy
