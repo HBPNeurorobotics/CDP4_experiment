@@ -38,7 +38,7 @@ def image_to_saccade(t, saliency, saccade, potential_target_pub, saliency_image_
     image = bridge.value.imgmsg_to_cv2(image.value, "bgr8")
 
     saliency_map = saliency.value.compute_saliency_map(image)
-    (target, is_actual_target) = saccade.value.compute_saccade_target(saliency_map, dt)
+    (target, is_actual_target, V, M) = saccade.value.compute_saccade_target(saliency_map, dt)
 
     target = Point(target[0], target[1], target[2])
 
