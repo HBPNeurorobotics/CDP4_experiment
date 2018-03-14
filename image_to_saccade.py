@@ -6,12 +6,13 @@ from cv_bridge import CvBridge
 
 from attention import Saliency, Saccade
 
+tensorflow_path = rospy.get_param("~tensorflow_path", "/opt/tensorflow_venv/lib/python2.7/site-packages")
 model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
 network_input_height = float(rospy.get_param('~network_input_height', '192'))
 network_input_width = float(rospy.get_param('~network_input_width', '256'))
 shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 
-@nrp.MapVariable("saliency", initial_value = Saliency(model_file, network_input_height, network_input_width))
+@nrp.MapVariable("saliency", initial_value = Saliency(tensorflow_path, model_file, network_input_height, network_input_width))
 @nrp.MapVariable("saccade", initial_value = Saccade(shift_activity))
 
 @nrp.MapVariable("potential_target_pub", initial_value = rospy.Publisher("/saccade_potential_target", Point, queue_size=1))
