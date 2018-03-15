@@ -1,6 +1,5 @@
 import rospy
 from sensor_msgs.msg import Image
-from embodied_attention.srv import ResetSaccade
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 
