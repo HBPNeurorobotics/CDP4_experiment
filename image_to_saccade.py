@@ -14,6 +14,7 @@ shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 @nrp.MapVariable("saliency", initial_value = Saliency(tensorflow_path, model_file, network_input_height, network_input_width))
 @nrp.MapVariable("saccade", initial_value = Saccade(shift_activity))
 
+@nrp.MapVariable("target_pub", initial_value = rospy.Publisher("/saccade_target", Point, queue_size=1))
 @nrp.MapVariable("potential_target_pub", initial_value = rospy.Publisher("/saccade_potential_target", Point, queue_size=1))
 @nrp.MapVariable("saliency_image_pub", initial_value = rospy.Publisher("/saliency_map_image", Image, queue_size=1))
 
@@ -22,8 +23,8 @@ shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 @nrp.MapVariable("last_time", initial_value=None)
 
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
-@nrp.Neuron2Robot(Topic('/saccade_target', Point))
-def image_to_saccade(t, saliency, saccade, potential_target_pub, saliency_image_pub, bridge, last_time, image):
+@nrp.Robot2Neuron(triggers="image", throttling_rate=10.0)
+def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, saliency_image_pub, bridge, last_time, image):
     import rospy
 
     if image.value is None:
@@ -49,4 +50,4 @@ def image_to_saccade(t, saliency, saccade, potential_target_pub, saliency_image_
     saliency_image_pub.value.publish(saliency_map_image)
 
     if is_actual_target:
-        return target
+        target_pub.value.publish(target)
