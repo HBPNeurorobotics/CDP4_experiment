@@ -25,14 +25,12 @@ shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
 @nrp.Robot2Neuron(triggers="image", throttling_rate=10.0)
 def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, saliency_image_pub, bridge, last_time, image):
-    import rospy
-
     if image.value is None:
         return
 
     if last_time.value is None:                                                                                                                                                                                           
-        last_time.value = rospy.get_time()
-    current_time = rospy.get_time()
+        last_time.value = t
+    current_time = t
     dt = current_time - last_time.value
     last_time.value = current_time
 
