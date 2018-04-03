@@ -4,7 +4,7 @@
     <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
     <param name="network_input_width" value="256"/>
     <param name="network_input_height" value="192"/>
-    <remap from="/rgb/image_raw" to="/icub_model/left_eye_camera/image_raw"/>
+    <remap from="/rgb/image_raw" to="/hollie/camera/left/image_raw"/>
   </node>
   <node name="saccade" pkg="embodied_attention" type="saccade.py" output="screen">
   </node>
