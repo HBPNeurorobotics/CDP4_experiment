@@ -8,6 +8,7 @@
   </node>
   <node name="curiosity" pkg="embodied_attention" type="curiosity.py" output="screen"/>
   <node name="saccade" pkg="embodied_attention" type="saccade.py" output="screen">
+    <param name="shift_activity" value="True"/>
     <remap from="/saliency_map" to="saliency_map_curiosity"/>
   </node>
   <node name="head_manager" pkg="embodied_attention" type="head_manager.py" output="screen">
