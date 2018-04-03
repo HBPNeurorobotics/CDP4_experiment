@@ -21,7 +21,9 @@
     <param name="model_path" value="$(env HOME)/.opt/models/research"/>
     <param name="graph_path" value="$(env HOME)/.opt/graph_def/frozen_inference_graph.pb"/>
   </node>
-  <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py" output="screen">
+  <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py" output="screen"/>
+  <node name="visualizer" pkg="embodied_attention" type="visualizer.py" output="screen">
+    <remap from="/saliency_map_image" to="saliency_map_curiosity_image"/>
   </node>
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results /status">
   </node>
