@@ -1,5 +1,14 @@
 <?xml version="1.0"?>
 <launch>
+  <group ns="/hollie/camera">
+    <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc">
+      <param name="min_disparity" value="-16"/>
+      <param name="disparity_range" value="32"/>
+      <param name="approximate_sync" value="True"/>
+      <param name="queue_size" value="800"/>
+    </node>
+  </group>
+
   <node name="saliency" pkg="embodied_attention" type="saliency.py" output="screen">
     <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
     <param name="network_input_width" value="256"/>
