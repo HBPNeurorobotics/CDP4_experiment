@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
 <launch>
+  <arg name="result_dir" value="test" />
+
+  <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status"/>
+
   <group ns="/hollie/camera">
     <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc">
       <param name="min_disparity" value="-16"/>
@@ -33,8 +37,6 @@
   <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py" output="screen"/>
   <node name="visualizer" pkg="embodied_attention" type="visualizer.py" output="screen">
     <remap from="/saliency_map_image" to="saliency_map_curiosity_image"/>
-  </node>
-  <node pkg="rosbag" type="record" name="recorder" output="screen" args="/clock /saccade_target /robot/eye_tilt/pos /robot/left_eye_pan/pos /roi /label /probe_results /status">
   </node>
   <node name="saver" pkg="image_view" type="image_saver" launch-prefix="$(env NRP_EXPERIMENTS_DIRECTORY)/CDP4_experiment/take_snap.sh">
     <remap from="image" to="/hollie/camera/left_wide_angle/image_raw"/>
