@@ -2,6 +2,9 @@
 <launch>
   <arg name="result_dir" value="test" />
 
+  <param name="tensorflow_path" value="$(env HOME)/.opt/tensorflow_venv/lib/python2.7/site-packages"/>
+  <param name="robot_description" textfile="$(env NRP_MODELS_DIRECTORY)/hollie_robot/urdf/hollie.urdf" />
+
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status"/>
 
   <group ns="/hollie/camera">
