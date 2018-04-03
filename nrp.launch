@@ -18,7 +18,8 @@
     <param name="move_eyes" value="True"/>
   </node>
   <node name="recognize" pkg="embodied_attention" type="recognize.py" output="screen">
-    <param name="model_path" value="$(find embodied_attention)/model/"/>
+    <param name="model_path" value="$(env HOME)/.opt/models/research"/>
+    <param name="graph_path" value="$(env HOME)/.opt/graph_def/frozen_inference_graph.pb"/>
   </node>
   <node name="visual_memory_module" pkg="ros_holographic" type="visual_memory_module.py" output="screen">
   </node>
