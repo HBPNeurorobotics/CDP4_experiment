@@ -9,6 +9,10 @@
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" ns="hollie" args="joint_state_controller eye_tilt_position_controller left_eye_pan_position_controller right_eye_pan_position_controller neck_pitch_position_controller neck_yaw_position_controller" respawn="false" output="screen" />
 
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
+    <param name="use_tf_static" value="False" />
+  </node>
+
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status"/>
 
   <group ns="/hollie/camera">
