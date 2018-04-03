@@ -5,7 +5,7 @@
     <populations population="neurons" xsi:type="Range" from="0" to="2"/>
     <populations population="record" xsi:type="Range" from="0" to="2"/>
   </brainModel>
-  <bodyModel>icub_model/model.sdf</bodyModel>
+  <bodyModel>hollie_robot/hollie.sdf</bodyModel>
 
   <!-- temporary solution to forward all joints since the frontend only monitors /joint_states -->
   <transferFunction xsi:type="PythonTransferFunction">
