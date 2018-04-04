@@ -123,14 +123,16 @@ def targets(bag, plot):
     plt.xlabel('pan (rad)')
     plt.ylabel('tilt (rad)')
 
-    plt.xticks([0, 640, 1280], [-math.pi/2, 0, math.pi/2])
-    plt.yticks([0, 640, 1280], [-math.pi/2, 0, math.pi/2])
+    plt.xticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
+    plt.yticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
 
-    x_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img[0]), x_limits)
-    y_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img), y_limits)
+    scalar = 0.8
+
+    x_limits = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img[0]), x_limits)
+    y_limits = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img), y_limits)
     plt.plot(x_limits, y_limits, 'r.')
-    pan_values = map(lambda x: (x + math.pi/2) / math.pi * len(img[0]), pan_values)
-    tilt_values = map(lambda x: (x + math.pi/2) / math.pi * len(img), tilt_values)
+    pan_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img[0]), pan_values)
+    tilt_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img), tilt_values)
     plt.plot(pan_values, tilt_values)
     for i, xy in enumerate(zip(pan_values, tilt_values)):
         ax.annotate(i, xy=xy, textcoords='data')
