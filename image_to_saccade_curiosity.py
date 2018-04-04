@@ -58,7 +58,6 @@ def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, sal
     camera_model.value.fromCameraInfo(camera_info_left.value, camera_info_right.value)
     disparity_image = bridge.value.imgmsg_to_cv2(disparity_image.value.image)
     for point in points.value:
-        rospy.loginfo("drawing point")
         point.header.stamp = rospy.Time.from_sec(t)
         transformed = tfBuffer.value.transform(point, camera_model.value.tfFrame(), timeout=rospy.Duration(0.1))
         point_torso = (-transformed.point.y, -transformed.point.z, transformed.point.x)
@@ -67,7 +66,6 @@ def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, sal
         y = int(pixel[0][1] * (len(saliency_map)/float(camera_info_left.value.height)))
         disparity = camera_model.value.getDisparity(point_torso[2])
         x = x + disparity
-        rospy.loginfo("point at %d, %d" % (x, y))
         if x >= 0 and x < len(saliency_map[0]) and y >=0 and y < len(saliency_map):
             from skimage.draw import circle
             rr, cc = circle(y, x, 15, (len(saliency_map), len(saliency_map[0])))
