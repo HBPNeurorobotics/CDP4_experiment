@@ -46,7 +46,7 @@ def rates(bag, plot):
     rates = [(i+1)/x for i, x in enumerate(normalized_timestamps)]
     print "Rates: " + str(rates)
     
-    fig = plt.figure(figsize=(12.8, 12.8))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('Saccade rates')
     plt.xlabel('seconds')
@@ -76,7 +76,7 @@ def durations(bag, plot):
 
     print "Average fixation duration: " + str(duration_avgs[len(duration_avgs) - 1])
 
-    fig = plt.figure(figsize=(12.8, 12.8))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('(Average) Fixation durations by ordinal fixation number')
     plt.xlabel('fixation #')
@@ -89,7 +89,7 @@ def durations(bag, plot):
     if plot:
         plt.show()
 
-    fig2 = plt.figure(figsize=(12.8, 12.8))
+    fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
     plt.title('Fixation duration distribution')
     plt.xlabel('duration (seconds)')
@@ -115,7 +115,7 @@ def targets(bag, plot):
     x_limits = [i.x for i in fov]
     y_limits = [i.y for i in fov]
 
-    fig = plt.figure(figsize=(12.8, 12.8))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     img = imread(os.path.expanduser('~/.ros/test/panorama.png'))
     plt.imshow(img)
@@ -159,7 +159,7 @@ def amplitudes(bag, plot):
     average_amplitude = total_amplitude/len(amplitudes)
     print "Average saccade amplitude: %f" % average_amplitude
 
-    fig = plt.figure(figsize=(12.8, 12.8))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('Saccade amplitudes by ordinal fixation number')
     plt.xlabel('fixation #')
@@ -170,7 +170,7 @@ def amplitudes(bag, plot):
     if plot:
         plt.show()
 
-    fig2 = plt.figure(figsize=(12.8, 12.8))
+    fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
     plt.title('Saccade amplitude distribution')
     plt.xlabel('amplitude (rad)')
