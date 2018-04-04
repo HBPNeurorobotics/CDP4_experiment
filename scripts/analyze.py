@@ -141,6 +141,30 @@ def targets(bag, plot):
         plt.show()
     print
 
+def rois(bag, plot):
+    print '### ROIs ###'
+    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
+    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
+    rois = [msg.message for msg in bag.read_messages('/roi')]
+    from cv_bridge import CvBridge, CvBridgeError
+    cv_bridge = CvBridge()
+    rois = map(lambda x: cv_bridge.imgmsg_to_cv2(x, "rgb8"), rois)
+    background = np.uint8(np.zeros([800,800,3]))
+    pan_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background[0])), pan_values)
+    tilt_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background)), tilt_values)
+    for (i, roi) in enumerate(rois):
+        background[tilt_values[i]-25:tilt_values[i]+25, pan_values[i]-25:pan_values[i]+25, :] = roi
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.xticks([0, len(background[0])/2, len(background[0])], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
+    plt.yticks([0, len(background)/2, len(background)], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
+    plt.imshow(background)
+    plt.savefig(bag.filename.split(".")[0] + "_rois.png", dpi=fig.dpi)
+    if plot:
+        plt.show()
+    print
+
 def amplitudes(bag, plot):
     print '### Saccade amplitudes ###'
     pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
@@ -219,6 +243,8 @@ def main(argv):
         durations(bag, plot)
     elif cmd == 'targets':
         targets(bag, plot)
+    elif cmd == 'rois':
+        rois(bag, plot)
     elif cmd == 'amplitudes':
         amplitudes(bag, plot)
     elif cmd == 'labels':
@@ -227,6 +253,7 @@ def main(argv):
         rates(bag, plot)
         durations(bag, plot)
         targets(bag, plot)
+        rois(bag, plot)
         amplitudes(bag, plot)
         list_labels(bag)
     else:
