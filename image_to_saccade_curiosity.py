@@ -32,7 +32,7 @@ shift_activity = bool(rospy.get_param('~shift_activity', 'True'))
 @nrp.MapVariable("listener", initial_value=None)
 
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
-@nrp.Robot2Neuron(triggers="image", throttling_rate=10.0)
+@nrp.Robot2Neuron(throttling_rate=10.0)
 def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, saliency_image_pub, bridge, last_time, points, camera_model, camera_info_left, camera_info_right, disparity_image, tfBuffer, listener, image):
     if image.value is None or camera_info_left.value is None or camera_info_right.value is None or disparity_image.value is None:
         return
