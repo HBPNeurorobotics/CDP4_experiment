@@ -105,9 +105,8 @@ def targets(bag, plot):
     print '### Targets ###'
     pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
     tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
-    if len(pan_values) == 0 or len(tilt_values) == 0:
-        print 'No target message found'
-        return
+    pan_values.insert(0, 0)
+    tilt_values.insert(0, 0)
     print "Pan values: " + str(pan_values)
     print "Tilt values: " + str(tilt_values)
 
