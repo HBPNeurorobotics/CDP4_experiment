@@ -110,13 +110,31 @@ def targets(bag, plot):
     print "Pan values: " + str(pan_values)
     print "Tilt values: " + str(tilt_values)
 
-    fov = [msg.message for msg in bag.read_messages('/fov')]
-    x_limits = [i.x for i in fov]
-    y_limits = [i.y for i in fov]
+    x_limits = []
+    y_limits = []
+    camera_infos = [msg.message for msg in bag.read_messages('/hollie/camera/left/camera_info')]
+    camera_info = camera_infos[0]
+    from image_geometry import PinholeCameraModel
+    camera_model = PinholeCameraModel()
+    camera_model.fromCameraInfo(camera_info)
+
+    top = map(lambda x: (x, 0), range(0, camera_info.width + 1, 16))
+    right = map(lambda y: (camera_info.width, y), range(0, camera_info.height + 1, 16))
+    bottom = map(lambda x: (x, camera_info.height), range(camera_info.width + 1, 0, -16))
+    left = map(lambda y: (0, y), range(camera_info.height + 1, 0, -16))
+
+    for p in top+right+bottom+left:
+         point_eye = camera_model.projectPixelTo3dRay(p)
+         point_eye = (1., point_eye[0], -point_eye[1])
+
+         pan_eye = math.atan2(point_eye[1], point_eye[0])
+         tilt_eye = math.atan2(-point_eye[2], math.sqrt(math.pow(point_eye[0], 2) + math.pow(point_eye[1], 2)))
+         x_limits.append(pan_eye)
+         y_limits.append(tilt_eye)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    img = imread(os.path.expanduser('~/.ros/test/panorama.png'))
+    img = imread(os.path.expanduser('~/.ros/cdp4/panorama.png'))
     plt.imshow(img)
     plt.title('Saccade targets')
     plt.xlabel('pan (rad)')
@@ -125,14 +143,16 @@ def targets(bag, plot):
     plt.xticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
     plt.yticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
 
+    x_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img[0]), x_limits)
+    y_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img), y_limits)
+    plt.plot(x_limits, y_limits, 'r-')
+
     scalar = 0.8
 
-    x_limits = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img[0]), x_limits)
-    y_limits = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img), y_limits)
-    plt.plot(x_limits, y_limits, 'r.')
     pan_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img[0]), pan_values)
     tilt_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img), tilt_values)
     plt.plot(pan_values, tilt_values)
+
     for i, xy in enumerate(zip(pan_values, tilt_values)):
         ax.annotate(i, xy=xy, textcoords='data')
     plt.savefig(bag.filename.split(".")[0] + "_targets.png", dpi=fig.dpi)
@@ -219,11 +239,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"hpb:c:",["bag=", "cmd="])
     except getopt.GetoptError:
-        print 'test.py -b <bagfile> -c <cmd>'
+        print 'analyze.py -b <bagfile> -c <cmd>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'test.py -b <bagfile> -c <cmd>'
+            print 'analyze.py -b <bagfile> -c <cmd>'
             sys.exit()
         elif opt == '-p':
             plot = True
