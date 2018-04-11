@@ -13,7 +13,7 @@
     <param name="use_tf_static" value="False" />
   </node>
 
-  <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status"/>
+  <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status /hollie/camera/left/camera_info"/>
 
   <group ns="/hollie/camera">
     <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc">
