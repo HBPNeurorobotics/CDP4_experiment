@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="result_dir" value="test" />
+  <arg name="result_dir" value="cdp4" />
+  <param name="hook" command="mkdir -p $(arg result_dir)" />
 
   <param name="tensorflow_path" value="$(env HOME)/.opt/tensorflow_venv/lib/python2.7/site-packages"/>
   <param name="robot_description" textfile="$(env NRP_MODELS_DIRECTORY)/hollie_robot/urdf/hollie.urdf" />
