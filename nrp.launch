@@ -33,7 +33,6 @@
   </node>
   <node name="curiosity" pkg="embodied_attention" type="curiosity.py" output="screen"/>
   <node name="saccade" pkg="embodied_attention" type="saccade.py" output="screen">
-    <param name="shift_activity" value="True"/>
     <remap from="/saliency_map" to="saliency_map_curiosity"/>
   </node>
   <node name="head_manager" pkg="embodied_attention" type="head_manager.py" output="screen">
@@ -41,6 +40,7 @@
     <param name="saliency_height" value="192"/>
     <param name="move_head" value="True"/>
     <param name="move_eyes" value="True"/>
+    <param name="shift" value="True"/>
   </node>
   <node name="recognize" pkg="embodied_attention" type="recognize.py" output="screen">
     <param name="model_path" value="$(env HOME)/.opt/models/research"/>
