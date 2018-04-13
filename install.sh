@@ -46,7 +46,13 @@ source tensorflow_venv/bin/activate
 pip install --upgrade tensorflow # or pip install --upgrade tensorflow-gpu
 
 # install models
-git clone https://github.com/tensorflow/models
+if cd models; then
+  git pull origin master
+  cd ..
+else
+  git clone https://github.com/tensorflow/models
+fi
+
 cd models/research
 protoc object_detection/protos/*.proto --python_out=.
 cd ../..
