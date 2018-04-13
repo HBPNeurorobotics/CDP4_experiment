@@ -34,9 +34,8 @@ fi
 
 cd holographic/vsa
 python setup.py install --user
-cd ../..
 
-cd ..
+cd $HBP/GazeboRosPackages/
 catkin_make
 
 # install tensorflow
