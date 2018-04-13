@@ -17,7 +17,7 @@ if cd embodied_attention; then
   git pull origin master
   cd ..
 else
-  git clone git@github.com:HBPNeurorobotics/embodied_attention.git
+  git clone https://github.com/HBPNeurorobotics/embodied_attention.git
 fi
 
 cd embodied_attention/attention
@@ -29,7 +29,7 @@ if cd holographic; then
   git pull origin master
   cd ..
 else
-  git clone git@github.com:HBPNeurorobotics/holographic.git
+  git clone https://github.com/HBPNeurorobotics/holographic.git
 fi
 
 cd holographic/vsa
