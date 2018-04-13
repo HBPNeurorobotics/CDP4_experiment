@@ -22,7 +22,8 @@ fi
 
 cd embodied_attention/attention
 python setup.py install --user
-cd ../..
+
+cd $HBP/GazeboRosPackages/src
 
 # install memory model
 if cd holographic; then
@@ -54,7 +55,6 @@ fi
 
 cd models/research
 protoc object_detection/protos/*.proto --python_out=.
-cd ../..
 
 # install pretrained models
 mkdir -p $HOME/.opt/graph_def
