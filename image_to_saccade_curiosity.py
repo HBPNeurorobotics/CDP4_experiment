@@ -68,7 +68,7 @@ def image_to_saccade(t, saliency, saccade, target_pub, potential_target_pub, sal
         x = x + disparity
         if x >= 0 and x < len(saliency_map[0]) and y >=0 and y < len(saliency_map):
             from skimage.draw import circle
-            rr, cc = circle(y, x, 15, (len(saliency_map), len(saliency_map[0])))
+            rr, cc = circle(y, x, 25, (len(saliency_map), len(saliency_map[0])))
             saliency_map[rr, cc] = 0.
 
     (target, is_actual_target, V, M) = saccade.value.compute_saccade_target(saliency_map, dt)
