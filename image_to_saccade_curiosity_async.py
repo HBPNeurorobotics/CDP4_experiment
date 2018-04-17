@@ -5,6 +5,7 @@ from cv_bridge import CvBridge
 from attention import Saliency
 from std_msgs.msg import Float32MultiArray
 from image_geometry import StereoCameraModel
+from embodied_attention.srv import Transform
 
 tensorflow_path = rospy.get_param("~tensorflow_path", "/opt/tensorflow_venv/lib/python2.7/site-packages")
 model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
@@ -20,29 +21,31 @@ network_input_width = float(rospy.get_param('~network_input_width', '256'))
 @nrp.MapVariable("camera_info_left", initial_value=None, scope=nrp.GLOBAL)
 @nrp.MapVariable("camera_info_right", initial_value=None, scope=nrp.GLOBAL)
 @nrp.MapVariable("disparity_image", initial_value=None, scope=nrp.GLOBAL)
-@nrp.MapVariable("tfBuffer", initial_value=None)
-@nrp.MapVariable("listener", initial_value=None)
+@nrp.MapVariable("transform_proxy", initial_value=rospy.ServiceProxy("/transform", Transform))
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
-def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_pub, points, camera_model, camera_info_left, camera_info_right, disparity_image, tfBuffer, listener):
+def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_pub, points, camera_model, camera_info_left, camera_info_right, disparity_image, transform_proxy):
     if image.value is None or camera_info_left.value is None or camera_info_right.value is None or disparity_image.value is None:
         return
-
-    if tfBuffer.value is None or listener.value is None:
-        import rospy
-        import tf2_ros
-        tfBuffer.value = tf2_ros.Buffer(rospy.Duration(30))
-        listener.value = tf2_ros.TransformListener(tfBuffer.value)
 
     image = bridge.value.imgmsg_to_cv2(image.value, "bgr8")
     saliency_map = saliency.value.compute_saliency_map(image)
 
     # apply curiosity
     import rospy
+    import geometry_msgs
+    import tf2_geometry_msgs
     camera_model.value.fromCameraInfo(camera_info_left.value, camera_info_right.value)
     disparity_image = bridge.value.imgmsg_to_cv2(disparity_image.value.image)
     for point in points.value:
-        # point.header.stamp = rospy.Time.now()
-        transformed = tfBuffer.value.transform(point, camera_model.value.tfFrame(), timeout=rospy.Duration(0.1))
+        # call service
+        point_new = geometry_msgs.msg.PointStamped()
+        point_new.header = point.header
+        point_new.point = point.point
+        transformed = transform_proxy.value(point_new).res
+        transformed_new = tf2_geometry_msgs.PointStamped()
+        transformed_new.header = transformed.header
+        transformed_new.point = transformed.point
+        transformed = transformed_new
         point_torso = (-transformed.point.y, -transformed.point.z, transformed.point.x)
         pixel = camera_model.value.project3dToPixel(point_torso)
         x = int(pixel[0][0] * (len(saliency_map[0])/float(camera_info_left.value.width)))
