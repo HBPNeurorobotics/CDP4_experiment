@@ -7,14 +7,13 @@ from rospy import ServiceProxy
 
 from nrp_states import SetModelPose
 
-from std_msgs.msg import Float64, String
+from std_msgs.msg import Float64, String, Empty
 from geometry_msgs.msg import Vector3, Quaternion
-from embodied_attention.srv import ResetSaccade, ResetSaccadeRequest
 from ros_holographic.srv import ClearMemory, ClearMemoryRequest, Dump, DumpRequest
 
 import time
 import os
-
+import math
 
 result_dir = "/tmp/%s" % time.strftime("exp_%Y-%m-%d-%H:%M:%S")
 if not os.path.exists(result_dir):
@@ -47,19 +46,24 @@ class ResetNodesState(State):
     self._clear_memory_proxy = rospy.ServiceProxy('/clear_memory', ClearMemory)
     self._clear_memory_msg = ClearMemoryRequest()
 
-    self._reset_pan_pub = rospy.Publisher('/robot/left_eye_pan/pos', Float64, queue_size=1)
-    self._reset_tilt_pub = rospy.Publisher('/robot/eye_tilt/pos', Float64, queue_size=1)
+    self._reset_pan_eye_left_pub = rospy.Publisher('/hollie/left_eye_pan_position_controller/command', Float64, queue_size=1)
+    self._reset_pan_eye_right_pub = rospy.Publisher('/hollie/right_eye_pan_position_controller/command', Float64, queue_size=1)
+    self._reset_tilt_eye_pub = rospy.Publisher('/hollie/eye_tilt_position_controller/command', Float64, queue_size=1)
+    self._reset_pan_head_pub = rospy.Publisher('/hollie/neck_yaw_position_controller/command', Float64, queue_size=1)
+    self._reset_tilt_head_pub = rospy.Publisher('/hollie/neck_pitch_position_controller/command', Float64, queue_size=1)
 
-    self._reset_saccade_proxy = rospy.ServiceProxy('/reset_saccade', ResetSaccade)
-    self._reset_saccade_msg = ResetSaccadeRequest()
+    self._reset_saccade_pub = rospy.Publisher('/reset', Empty, queue_size=1)
 
     self._status_pub = rospy.Publisher('/status', String, queue_size=1)
 
   def execute(self, userdata):
     self._clear_memory_proxy(self._clear_memory_msg)
-    self._reset_pan_pub.publish(Float64(0.0))
-    self._reset_tilt_pub.publish(Float64(0.0))
-    self._reset_saccade_proxy(self._reset_saccade_msg)
+    self._reset_pan_eye_left_pub.publish(Float64(0.0))
+    self._reset_pan_eye_right_pub.publish(Float64(0.0))
+    self._reset_tilt_eye_pub.publish(Float64(0.0))
+    self._reset_pan_head_pub.publish(Float64(0.0))
+    self._reset_tilt_head_pub.publish(Float64(0.0))
+    self._reset_saccade_pub.publish(Empty())
     self._status_pub.publish(String('reset'))
     return 'success'
 
@@ -72,19 +76,25 @@ with sm:
 
   StateMachine.add(
     'wait',
-    states.ClockDelayState(waittime=3600),
+    states.ClockDelayState(waittime=5),
     transitions = {'valid': 'wait', 'invalid': 'export_memory'}
   )
 
   StateMachine.add(
     'export_memory',
     ExportMemoryState(),
-    transitions = {'success': 'move_chair'}
+    transitions = {'success': 'move_apple'}
   )
 
   StateMachine.add(
-    'move_chair',
-    SetModelPose("officechair_0", Vector3(-2.67558, 0.0, 0.001236), Quaternion(0.0, 0.0, -0.90808776173, 0.418779914747), Vector3(1.0, 1.0, 1.0)),
+    'move_apple',
+    SetModelPose("apple_poster_0", Vector3(3.8, 0.0, 3.0), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
+    transitions = {'succeeded': 'move_bird', 'aborted': ERROR, 'preempted': PREEMPTED}
+  )
+
+  StateMachine.add(
+    'move_bird',
+    SetModelPose("bird_poster_0", Vector3(3.8, 2.0, 3.0), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
     transitions = {'succeeded': 'reset_nodes', 'aborted': ERROR, 'preempted': PREEMPTED}
   )
 
@@ -96,7 +106,7 @@ with sm:
 
   StateMachine.add(
     'wait2',
-    states.ClockDelayState(waittime=3600),
+    states.ClockDelayState(waittime=5),
     transitions = {'valid': 'wait2', 'invalid': 'export_memory2'}
   )
 
@@ -109,5 +119,5 @@ with sm:
   StateMachine.add(
     'reset_nodes2',
     ResetNodesState(),
-    transitions = {'success': FINISHED }
+    transitions = {'success': FINISHED}
   )
