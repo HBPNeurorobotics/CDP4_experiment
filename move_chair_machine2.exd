@@ -121,7 +121,13 @@ with sm:
   StateMachine.add(
     'wait2',
     states.ClockDelayState(waittime=3600),
-    transitions = {'valid': 'wait2', 'invalid': 'reset_nodes2'}
+    transitions = {'valid': 'wait2', 'invalid': 'export_memory2'}
+  )
+
+  StateMachine.add(
+    'export_memory2',
+    ExportMemoryState(),
+    transitions = {'success': 'reset_nodes2'}
   )
 
   StateMachine.add(
