@@ -12,6 +12,7 @@
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher">
     <param name="use_tf_static" value="False" />
+    <param name="publish_frequency" value="1000.0" />
   </node>
 
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status /hollie/camera/left/camera_info"/>
