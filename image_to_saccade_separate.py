@@ -49,6 +49,7 @@ from attention import Saccade
 from rosgraph_msgs.msg import Clock
 from std_msgs.msg import Float32MultiArray
 from sensor_msgs.msg import Image
+from embodied_attention.srv import Target
 
 @nrp.MapVariable("saccade", initial_value = Saccade(), scope=nrp.GLOBAL)
 @nrp.MapVariable("target_pub", initial_value = rospy.Publisher("/saccade_target", Point, queue_size=1))
@@ -57,8 +58,9 @@ from sensor_msgs.msg import Image
 @nrp.MapVariable("visual_neurons_pub", initial_value = rospy.Publisher("/visual_neurons", Image, queue_size=1))
 @nrp.MapVariable("motor_neurons_pub", initial_value = rospy.Publisher("/motor_neurons", Image, queue_size=1))
 @nrp.MapVariable("last_time", initial_value = None)
+@nrp.MapVariable("hm_proxy", initial_value = rospy.ServiceProxy('/saccade', Target))
 @nrp.MapRobotSubscriber("saliency_map", Topic("/saliency_map", Float32MultiArray))
-def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_map, bridge, visual_neurons_pub, motor_neurons_pub, last_time):
+def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_map, bridge, visual_neurons_pub, motor_neurons_pub, last_time, hm_proxy):
     if saliency_map.value is None:
         return
 
@@ -75,6 +77,7 @@ def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_m
     potential_target_pub.value.publish(target)
     if is_actual_target:
         target_pub.value.publish(target)
+        hm_proxy.value(target)
 
     visual_neurons = (visual_neurons - visual_neurons.min()) / (visual_neurons.max() - visual_neurons.min())
     motor_neurons = (motor_neurons - motor_neurons.min()) / (motor_neurons.max() - motor_neurons.min())
