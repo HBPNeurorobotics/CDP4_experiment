@@ -10,35 +10,21 @@ Here is a block diagram of the components that will be integrated in this experi
 Installation
 -----------
 
-* Clone this folder into the `NRP/Experiments/` (`$NRP_EXPERIMENTS_DIRECTORY`) folder
-
-Run `./install.sh` or follow these instructions:
-
-* The following repos are needed in the `GazeboRosPackages/src/` (`$HBP/GazeboRosPackages/src`) folder:
-  * [embodied_attention](https://github.com/HBPNeurorobotics/embodied_attention)
-    * `git clone git@github.com:HBPNeurorobotics/embodied_attention.git`
-  * **Optional** memory - [holographic](https://github.com/HBPNeurorobotics/holographic)
-    * `git clone git@github.com:HBPNeurorobotics/holographic.git`
-* Run `catkin_make` in `GazeboRosPackages/`
-* **Optional** object identification - Install [slim](https://github.com/tensorflow/models/tree/master/research/slim)
-  * `git clone git@github.com:tensorflow/models.git`
-  * `cd models/research/slim`
-  * `python setup.py install`
-
-The following libraries should be installed into your platform virtual environment (``~/.opt/platform_venv``):
-* tensorflow>=1.4.1
-* numpy>=1.13.3
-* scikit-image
-* wget (used to download the network model files on first run)
+* Go to experiments folder: `cd NRP/Experiments/` (`cd $NRP_EXPERIMENTS_DIRECTORY`)
+* Clone repository: `git clone https://github.com/HBPNeurorobotics/CDP4_experiment.git`
+* Enter repository: `cd CDP4_experiments`
+* Run `./install.sh`
 
 Usage
 -----
 
 See nrp.launch for the different nodes provided:
-* embodied_attention forward.py - converts camera input to saliency map
+* embodied_attention saliency.py - converts camera input to saliency map
+* embodied_attention curiosity.py - modifies saliency map for more exploration
 * embodied_attention saccade.py - converts saliency map to saccade targets
 * embodied_attention attention.py - moves eyes of robot, initiates object identification, stores information in memory
 * embodied_attention recognize.py - provides object recognition
 * ros_holographic visual_memory_module.py - provides memory
+* embodied_attention visualizer.py - brief visualization of saliency and saccade mechanism
 
-Additionally, you can `rosrun embodied_attention visualizer.py` for a brief visualization of the saccade mechanism
+For timing reasons, the saliency and saccade models are also available in transfer functions image_to_saccade*.py
