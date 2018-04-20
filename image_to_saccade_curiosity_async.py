@@ -7,7 +7,7 @@ from std_msgs.msg import Float32MultiArray
 from image_geometry import StereoCameraModel
 from embodied_attention.srv import Transform
 
-tensorflow_path = rospy.get_param("~tensorflow_path", "/opt/tensorflow_venv/lib/python2.7/site-packages")
+tensorflow_path = rospy.get_param("tensorflow_path", "/opt/tensorflow_venv/lib/python2.7/site-packages")
 model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
 network_input_height = float(rospy.get_param('~network_input_height', '192'))
 network_input_width = float(rospy.get_param('~network_input_width', '256'))
