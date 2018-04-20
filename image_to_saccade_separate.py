@@ -18,6 +18,9 @@ network_input_width = float(rospy.get_param('~network_input_width', '256'))
 @nrp.MapVariable("elapsed", initial_value = 0)
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
 def image_to_saliency(t, saliency, saliency_pub, saliency_image_pub, bridge, image, last_time, elapsed):
+    if t < 1.0:
+        return
+
     if image.value is None:
         return
 
@@ -61,6 +64,9 @@ from embodied_attention.srv import Target
 @nrp.MapVariable("hm_proxy", initial_value = rospy.ServiceProxy('/saccade', Target))
 @nrp.MapRobotSubscriber("saliency_map", Topic("/saliency_map", Float32MultiArray))
 def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_map, bridge, visual_neurons_pub, motor_neurons_pub, last_time, hm_proxy):
+    if t < 1.0:
+        return
+
     if saliency_map.value is None:
         return
 
