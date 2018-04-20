@@ -26,6 +26,7 @@
     </node>
   </group>
 
+  <!--
   <node name="saliency" pkg="embodied_attention" type="saliency.py" output="screen">
     <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
     <param name="network_input_width" value="256"/>
@@ -36,6 +37,7 @@
   <node name="saccade" pkg="embodied_attention" type="saccade.py" output="screen">
     <remap from="/saliency_map" to="saliency_map_curiosity"/>
   </node>
+  -->
   <node name="head_manager" pkg="embodied_attention" type="head_manager.py" output="screen">
     <param name="saliency_width" value="256"/>
     <param name="saliency_height" value="192"/>
