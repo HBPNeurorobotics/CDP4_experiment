@@ -195,7 +195,7 @@ def amplitudes(bag, plot):
     pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
     tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
 
-    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y), zip(pan_amplitudes, tilt_amplitudes))
+    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y) * (360/(2*math.pi)), zip(pan_amplitudes, tilt_amplitudes))
     print "Saccade amplitudes: " + str(amplitudes)
 
     total_amplitude = sum(amplitudes)
@@ -208,7 +208,7 @@ def amplitudes(bag, plot):
     ax = fig.add_subplot(111)
     plt.title('Saccade amplitudes by ordinal fixation number')
     plt.xlabel('fixation #')
-    plt.ylabel('amplitude (rad)')
+    plt.ylabel('amplitude (deg)')
     plt.grid(True)
     plt.plot(amplitudes)
     plt.savefig(bag.filename.split(".")[0] + "_amplitudes.png", dpi=fig.dpi)
@@ -218,7 +218,7 @@ def amplitudes(bag, plot):
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
     plt.title('Saccade amplitude distribution')
-    plt.xlabel('amplitude (rad)')
+    plt.xlabel('amplitude (deg)')
     plt.ylabel('number of saccades')
     plt.grid(True)
     plt.hist(amplitudes, bins='doane')
