@@ -87,17 +87,17 @@ def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_m
 
     lo = saliency_map.value.layout
     saliency_map_extracted = np.asarray(saliency_map.value.data[lo.data_offset:]).reshape(lo.dim[0].size, lo.dim[1].size)
-    (target, is_actual_target, V, M) = saccade.value.compute_saccade_target(saliency_map_extracted, 1)
+    (target, is_actual_target, visual_neurons, motor_neurons) = saccade.value.compute_saccade_target(saliency_map_extracted, 1)
     target = Point(target[0], target[1], target[2])
     potential_target_pub.value.publish(target)
     if is_actual_target:
         target_pub.value.publish(target)
 
-    V = (V - V.min()) / (V.max() - V.min())                                                                                                                                                                          
-    M = (M - M.min()) / (M.max() - M.min())
+    visual_neurons = (visual_neurons - visual_neurons.min()) / (visual_neurons.max() - visual_neurons.min())
+    motor_neurons = (motor_neurons - motor_neurons.min()) / (motor_neurons.max() - motor_neurons.min())
     
-    visual_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(V * 255.), "mono8")
-    motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(M * 255.), "mono8")
+    visual_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(visual_neurons * 255.), "mono8")
+    motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(motor_neurons * 255.), "mono8")
     visual_neurons_pub.value.publish(visual_neurons_image)
     motor_neurons_pub.value.publish(motor_neurons_image)
 
