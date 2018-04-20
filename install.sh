@@ -3,6 +3,13 @@
 # system dependencies:
 # apt-get install python-pip python-dev python-virtualenv protobuf-compiler python-pil python-lxml python-dev git
 
+if [[ $# -ne 0 && $1 == "gpu" ]]; then
+  echo "going to download gpu versions of models"
+  gpu=1
+else
+  echo "going to download cpu versions of models"
+fi
+
 DIR=$PWD
 
 source $VIRTUAL_ENV/bin/activate
@@ -23,6 +30,18 @@ fi
 cd embodied_attention/attention
 python setup.py install --user
 
+# download saliency model
+cd ../model/
+if [ $gpu ]; then
+  curl -k -o model.cpkt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
+  curl -k -o model.cpkt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
+  curl -k -o model.cpkt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
+else
+  curl -k -o model.cpkt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
+  curl -k -o model.cpkt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
+  curl -k -o model.cpkt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
+fi
+
 cd $HBP/GazeboRosPackages/src
 
 # install memory model
@@ -36,6 +55,19 @@ fi
 cd holographic/vsa
 python setup.py install --user
 
+cd $HBP/Models/
+
+# install world and poster models
+if cd CDP4_models; then
+  git pull origin master
+  cd ..
+else
+  git clone https://github.com/HBPNeurorobotics/CDP4_models.git
+fi
+
+cd CDP4_models
+./install.sh
+
 cd $HBP/GazeboRosPackages/
 catkin_make
 
@@ -43,9 +75,14 @@ catkin_make
 cd $HOME/.opt
 virtualenv --system-site-packages tensorflow_venv
 source tensorflow_venv/bin/activate
-pip install --upgrade tensorflow # or pip install --upgrade tensorflow-gpu
+if [ $gpu ]; then
+  pip install --upgrade tensorflow-gpu
+else
+  pip install --upgrade tensorflow
+fi
+deactivate
 
-# install models
+# install object detection models
 if cd models; then
   git pull origin master
   cd ..
