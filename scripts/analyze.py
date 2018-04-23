@@ -35,6 +35,10 @@ def general(bag, plot):
     normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
     for t in normalized_timestamps:
         print "\tat " + str(t)
+
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
     print "Time to first saccade execution: %f" % normalized_timestamps[0]
     print "Number of fixations: %d" % len(normalized_timestamps)
 
