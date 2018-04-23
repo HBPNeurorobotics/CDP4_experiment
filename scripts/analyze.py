@@ -267,22 +267,22 @@ def main(argv):
         rates(bag, plot)
     elif cmd == 'durations':
         durations(bag, plot)
+    elif cmd == 'amplitudes':
+        amplitudes(bag, plot)
     elif cmd == 'targets':
         targets(bag, plot)
     elif cmd == 'rois':
         rois(bag, plot)
-    elif cmd == 'amplitudes':
-        amplitudes(bag, plot)
     elif cmd == 'all':
         general(bag, plot)
         rates(bag, plot)
         durations(bag, plot)
+        amplitudes(bag, plot)
         targets(bag, plot)
         rois(bag, plot)
-        amplitudes(bag, plot)
     else:
         print 'Command not found'
-        print 'Commands: split, general, rates, durations, targets, amplitudes'
+        print 'Commands: split, general, rates, durations, amplitudes, targets, rois'
 
 if __name__ == "__main__":
    main(sys.argv[1:])
