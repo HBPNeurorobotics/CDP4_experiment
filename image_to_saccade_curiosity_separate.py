@@ -121,13 +121,19 @@ def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_m
         target_pub.value.publish(target)
         hm_proxy.value(target)
 
-    visual_neurons = (visual_neurons - visual_neurons.min()) / (visual_neurons.max() - visual_neurons.min())
-    motor_neurons = (motor_neurons - motor_neurons.min()) / (motor_neurons.max() - motor_neurons.min())
-    
-    visual_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(visual_neurons * 255.), "mono8")
-    motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(motor_neurons * 255.), "mono8")
-    visual_neurons_pub.value.publish(visual_neurons_image)
-    motor_neurons_pub.value.publish(motor_neurons_image)
+    visual_neurons_min = visual_neurons.min()
+    visual_neurons_max = visual_neurons.max()
+    motor_neurons_min = motor_neurons.min()
+    motor_neurons_max = motor_neurons.max()
+
+    if visual_neurons_max - visual_neurons_min is not 0 and motor_neurons_max - motor_neurons_min is not 0:
+        visual_neurons = (visual_neurons - visual_neurons_min) / (visual_neurons_max - visual_neurons_min)
+        motor_neurons = (motor_neurons - motor_neurons_min) / (motor_neurons_max - motor_neurons_min)
+
+        visual_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(visual_neurons * 255.), "mono8")
+        motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(motor_neurons * 255.), "mono8")
+        visual_neurons_pub.value.publish(visual_neurons_image)
+        motor_neurons_pub.value.publish(motor_neurons_image)
 
 from tf2_geometry_msgs import PointStamped 
 @nrp.MapVariable("points", initial_value=[], scope=nrp.GLOBAL)
