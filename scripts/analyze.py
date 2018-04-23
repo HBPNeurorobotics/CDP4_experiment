@@ -27,6 +27,21 @@ def split_bag(bag):
         b.close()
     print
 
+def general(bag, plot):
+    print '### General ###'
+    target_msgs = [msg for msg in bag.read_messages('/status')]
+    print "Droppped %d saccades:" % len(target_msgs)
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+    for t in normalized_timestamps:
+        print "\tat " + str(t)
+    print "Time to first saccade execution: %f" % normalized_timestamps[0]
+    print "Number of fixations: %d" % len(normalized_timestamps)
+
+    labels = [msg.message.data for msg in bag.read_messages('/label')]
+    print "Labels: %s" % str(labels)
+    print
+
 def rates(bag, plot):
     print '### Rates ###'
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
@@ -35,16 +50,10 @@ def rates(bag, plot):
         print 'No target message found'
         return
 
-    print "Time to first saccade execution: %f" % timestamps[0]
-    print "Number of fixations: %d" % len(timestamps)
-    
-    start = timestamps[0]
-    stop = timestamps[len(timestamps) - 1]
-    normalized_timestamps = [(t - start) for t in timestamps]
-    del normalized_timestamps[0]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
     
     rates = [(i+1)/x for i, x in enumerate(normalized_timestamps)]
-    print "Rates: " + str(rates)
+    print "Saccade rates: " + str(rates)
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -66,14 +75,12 @@ def durations(bag, plot):
         print 'No target message found'
         return
 
-    start = timestamps[0]
-    stop = timestamps[len(timestamps) - 1]
-    normalized_timestamps = [(t - start) for t in timestamps]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+
     durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
     print "Fixation durations by ordinal fixation number: " + str(durations)
 
     duration_avgs = map(lambda (i, x): sum(durations[0:i+1])/(i+1), enumerate(durations))
-
     print "Average fixation duration: " + str(duration_avgs[len(duration_avgs) - 1])
 
     fig = plt.figure()
@@ -227,12 +234,6 @@ def amplitudes(bag, plot):
         plt.show()
     print
 
-def list_labels(bag):
-    print '### Labels ###'
-    labels = [msg.message.data for msg in bag.read_messages('/label')]
-    print labels
-    print
-
 def main(argv):
     cmd = ''
     plot = False
@@ -256,6 +257,8 @@ def main(argv):
 
     if cmd == 'split':
         split_bag(bag)
+    elif cmd == 'general':
+        general(bag, plot)
     elif cmd == 'rates':
         rates(bag, plot)
     elif cmd == 'durations':
@@ -266,18 +269,16 @@ def main(argv):
         rois(bag, plot)
     elif cmd == 'amplitudes':
         amplitudes(bag, plot)
-    elif cmd == 'labels':
-        list_labels(bag)
     elif cmd == 'all':
+        general(bag, plot)
         rates(bag, plot)
         durations(bag, plot)
         targets(bag, plot)
         rois(bag, plot)
         amplitudes(bag, plot)
-        list_labels(bag)
     else:
         print 'Command not found'
-        print 'Commands: rates, durations, targets, amplitudes, labels'
+        print 'Commands: split, general, rates, durations, targets, amplitudes'
 
 if __name__ == "__main__":
    main(sys.argv[1:])
