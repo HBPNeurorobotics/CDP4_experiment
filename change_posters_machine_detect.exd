@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import hbp_nrp_excontrol.nrp_states as states
 from smach import StateMachine
 from smach.state import State
@@ -95,12 +97,11 @@ class ResetNodesState2(State):
     self._status_pub.publish(String('reset'))
     return 'success'
 
-
 with sm:
   StateMachine.add(
     'initial_wait',
     states.ClockDelayState(waittime=1),
-    {'valid': 'initial_wait', 'invalid': 'initial_reset_nodes'}
+    transitions = {'valid': 'initial_wait', 'invalid': 'initial_reset_nodes'}
   )
 
   StateMachine.add(
