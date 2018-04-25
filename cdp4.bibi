@@ -8,16 +8,10 @@
   </brainModel>
   <bodyModel>hollie_robot/hollie.sdf</bodyModel>
 
-  <!-- temporary solution to forward all joints since the frontend only monitors /joint_states -->
-  <transferFunction xsi:type="PythonTransferFunction">
-    #<![CDATA[
-    from sensor_msgs.msg import JointState
-
-    @nrp.MapRobotSubscriber("joints", Topic("/robot/joints", JointState))
-    @nrp.Neuron2Robot(Topic('/joint_states', JointState))
-    def joint_states_passthrough(t, joints):
-        return joints.value
-    #]]>
-  </transferFunction>
+  <transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency.py"/>
+  <!-- transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency_curiosity.py"/ -->
+  <transferFunction xsi:type="PythonTransferFunction" src="saliency_to_saccade.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="shift_callback.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="reset_callback.py"/>
 
 </bibi>
