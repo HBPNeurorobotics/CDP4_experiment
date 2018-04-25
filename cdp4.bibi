@@ -8,8 +8,14 @@
   </brainModel>
   <bodyModel>hollie_robot/hollie.sdf</bodyModel>
 
+  <!--
+  <transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency_curiosity.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="point_callback.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="camera_info_left_callback.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="camera_info_right_callback.py"/>
+  <transferFunction xsi:type="PythonTransferFunction" src="disparity_image_callback.py"/>
+  -->
   <transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency.py"/>
-  <!-- transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency_curiosity.py"/ -->
   <transferFunction xsi:type="PythonTransferFunction" src="saliency_to_saccade.py"/>
   <transferFunction xsi:type="PythonTransferFunction" src="shift_callback.py"/>
   <transferFunction xsi:type="PythonTransferFunction" src="reset_callback.py"/>
