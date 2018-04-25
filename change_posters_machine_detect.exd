@@ -18,7 +18,7 @@ import time
 import os
 import math
 
-result_dir = os.path.expanduser('~') + "/.ros/cpd4/%s" % time.strftime("exp_%Y-%m-%d-%H:%M:%S")
+result_dir = os.path.expanduser('~') + "/.ros/cdp4/%s" % time.strftime("exp_%Y-%m-%d-%H:%M:%S")
 if not os.path.exists(result_dir):
   os.makedirs(result_dir)
 
