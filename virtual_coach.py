@@ -4,8 +4,9 @@ import time
 import os
 
 vc = VirtualCoach(environment='local')
+fname_base = "/home/nrpuser/.ros/cdp4/experiment"
 
-for i in range(0,9):
+for i in range(0, 5):
     print "### Running experiment %d" % i
     print "Launching"
     sim = vc.launch_experiment('cdp4')
@@ -13,8 +14,11 @@ for i in range(0,9):
     sim.start()
     while rospy.get_time() < 11.1:
         time.sleep(2)
+    print "Pausing"
+    sim.pause()
     print "Stopping"
     sim.stop()
-    time.sleep(20)
+    while os.path.isfile(fname_base + ".bag.active"):
+        time.sleep(2)
     print "Renaming"
-    os.rename("/home/nrpuser/.ros/cdp4/experiment.bag", "/home/nrpuser/.ros/cdp4/experiment_" + str(i) + ".bag")
+    os.rename(fname_base + ".bag", fname_base + "_" + str(i) + ".bag")
