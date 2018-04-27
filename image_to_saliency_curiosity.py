@@ -82,3 +82,5 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
     width = MultiArrayDimension(size=len(saliency_map[0]))
     lo = MultiArrayLayout([height, width], 0)
     saliency_pub.value.publish(Float32MultiArray(layout=lo, data=saliency_map.flatten()))
+
+    return

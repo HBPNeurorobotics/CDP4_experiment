@@ -6,3 +6,4 @@ from std_msgs.msg import Empty
 @nrp.Neuron2Robot(triggers = "shift")
 def shift_callback(t, saccade, shift):
     saccade.value.shift()
+    return

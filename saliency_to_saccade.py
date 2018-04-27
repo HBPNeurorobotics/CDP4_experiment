@@ -49,3 +49,5 @@ def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_m
         motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(motor_neurons * 255.), "mono8")
         visual_neurons_pub.value.publish(visual_neurons_image)
         motor_neurons_pub.value.publish(motor_neurons_image)
+
+    return

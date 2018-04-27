@@ -7,3 +7,4 @@ from std_msgs.msg import Empty
 def reset_callback(t, saccade, reset):
     from attention import Saccade
     saccade.value = Saccade()
+    return
