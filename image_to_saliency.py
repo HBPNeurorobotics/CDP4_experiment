@@ -10,7 +10,7 @@ model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
 network_input_height = float(rospy.get_param('~network_input_height', '192'))
 network_input_width = float(rospy.get_param('~network_input_width', '256'))
 
-@nrp.MapVariable("saliency", initial_value = Saliency(tensorflow_path, model_file, network_input_height, network_input_width))
+@nrp.MapVariable("saliency", initial_value = Saliency(tensorflow_path, model_file, network_input_height, network_input_width, False))
 @nrp.MapVariable("saliency_pub", initial_value = rospy.Publisher("/saliency_map", Float32MultiArray, queue_size=1))
 @nrp.MapVariable("saliency_image_pub", initial_value = rospy.Publisher("/saliency_map_image", Image, queue_size=1))
 @nrp.MapVariable("bridge", initial_value=CvBridge())

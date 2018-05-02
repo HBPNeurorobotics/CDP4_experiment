@@ -31,6 +31,7 @@
     <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
     <param name="network_input_width" value="256"/>
     <param name="network_input_height" value="192"/>
+    <param name="clip" value="False"/>
     <remap from="/rgb/image_raw" to="/hollie/camera/left/image_raw"/>
   </node>
   <node name="curiosity" pkg="embodied_attention" type="curiosity.py" output="screen"/>
