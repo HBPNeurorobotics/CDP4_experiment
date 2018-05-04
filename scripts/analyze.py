@@ -238,6 +238,45 @@ def amplitudes(bag, plot):
         plt.show()
     print
 
+def amp_dur(bag, plot):
+    print '### Amplitudes vs Duration ###'
+    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
+    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
+    if len(pan_values) == 0 or len(tilt_values) == 0:
+        print 'No target message found'
+        return
+
+    pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
+    tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
+
+    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y) * (360/(2*math.pi)), zip(pan_amplitudes, tilt_amplitudes))
+    print "Saccade amplitudes: " + str(amplitudes)
+
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    if len(timestamps) == 0:
+        print 'No target message found'
+        return
+
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+
+    durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
+    print "Fixation durations by ordinal fixation number: " + str(durations)
+
+    print np.corrcoef(amplitudes, durations)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Saccade amplitudes vs fixation durations')
+    plt.xlabel('amplitude (deg)')
+    plt.ylabel('fixation duration (s)')
+    plt.grid(True)
+    plt.plot(amplitudes, durations, 'b.')
+    plt.savefig(bag.filename.split(".")[0] + "_amp_dur.png", dpi=fig.dpi)
+    if plot:
+        plt.show()
+
+
 def main(argv):
     cmd = ''
     plot = False
@@ -273,6 +312,8 @@ def main(argv):
         targets(bag, plot)
     elif cmd == 'rois':
         rois(bag, plot)
+    elif cmd == 'amp_dur':
+        amp_dur(bag, plot)
     elif cmd == 'all':
         general(bag, plot)
         rates(bag, plot)
@@ -280,9 +321,10 @@ def main(argv):
         amplitudes(bag, plot)
         targets(bag, plot)
         rois(bag, plot)
+        amp_dur(bag, plot)
     else:
         print 'Command not found'
-        print 'Commands: split, general, rates, durations, amplitudes, targets, rois'
+        print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur'
 
 if __name__ == "__main__":
    main(sys.argv[1:])
