@@ -87,6 +87,12 @@ def durations(bag, plot):
     duration_avgs = map(lambda (i, x): sum(durations[0:i+1])/(i+1), enumerate(durations))
     print "Average fixation duration: " + str(duration_avgs[len(duration_avgs) - 1])
 
+    print "Correlation of fixation number and fixation duration:"
+    print np.corrcoef(range(0, len(durations)), durations)
+
+    print "Correlation of viewing time and fixation duration:"
+    print np.corrcoef(normalized_timestamps[1:], durations)
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('(Average) Fixation durations by ordinal fixation number')
@@ -205,6 +211,14 @@ def amplitudes(bag, plot):
         print 'No target message found'
         return
 
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    if len(timestamps) == 0:
+        print 'No target message found'
+        return
+
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+
     pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
     tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
 
@@ -216,6 +230,12 @@ def amplitudes(bag, plot):
 
     average_amplitude = total_amplitude/len(amplitudes)
     print "Average saccade amplitude: %f" % average_amplitude
+
+    print "Correlation of fixation number and saccade aplitude:"
+    print np.corrcoef(range(0, len(amplitudes)), amplitudes)
+
+    print "Correlation of viewing time and saccade amplitude:"
+    print np.corrcoef(normalized_timestamps[1:], amplitudes)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -265,6 +285,7 @@ def amp_dur(bag, plot):
     durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
     print "Fixation durations by ordinal fixation number: " + str(durations)
 
+    print "Correlation of saccade aplitude and fixation duration:"
     print np.corrcoef(amplitudes, durations)
 
     fig = plt.figure()
