@@ -183,6 +183,8 @@ def rois(bag, plot):
     pan_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background[0])), pan_values)
     tilt_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background)), tilt_values)
     for (i, roi) in enumerate(rois):
+        if roi is None:
+            continue
         background[tilt_values[i]-25:tilt_values[i]+25, pan_values[i]-25:pan_values[i]+25, :] = roi
 
     fig = plt.figure()
