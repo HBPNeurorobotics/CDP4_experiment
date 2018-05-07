@@ -45,6 +45,7 @@
     <param name="move_head" value="True"/>
     <param name="move_eyes" value="True"/>
     <param name="shift" value="True"/>
+    <param name="recognize" value="True"/>
   </node>
   <node name="recognize" pkg="embodied_attention" type="recognize.py" output="screen">
     <param name="model_path" value="$(env HOME)/.opt/models/research"/>
