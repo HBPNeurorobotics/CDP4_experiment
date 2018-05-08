@@ -124,13 +124,13 @@ with sm:
 
   StateMachine.add(
     'move_plant',
-    SetModelPose("hosta_potted_plant_0", Vector3(0.811313, -1.0847, -0.002588), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
+    SetModelPose("hosta_potted_plant_1", Vector3(0.811313, -1.0847, -0.002588), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
     transitions = {'succeeded': 'move_bottle', 'aborted': ERROR, 'preempted': PREEMPTED}
   )
 
   StateMachine.add(
     'move_bottle',
-    SetModelPose("biologylabbottle_0", Vector3(-4.88985, 1.95837, 0.003302), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
+    SetModelPose("biologylabbottle_0", Vector3(-5.34493, -1.5313, 2.83832), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
     transitions = {'succeeded': 'reset_nodes', 'aborted': ERROR, 'preempted': PREEMPTED}
   )
 
