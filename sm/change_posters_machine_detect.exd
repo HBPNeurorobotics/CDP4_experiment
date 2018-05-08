@@ -74,7 +74,7 @@ class ResetNodesState2(State):
   def __init__(self, outcomes=['success']):
     super(ResetNodesState2, self).__init__(outcomes=outcomes)
 
-    self._set_memory_proxy = rospy.ServiceProxy('/memorize', SetBool)
+    self._set_probe_proxy = rospy.ServiceProxy('/probe', SetBool)
 
     self._reset_pan_eye_left_pub = rospy.Publisher('/hollie/left_eye_pan_position_controller/command', Float64, queue_size=1)
     self._reset_pan_eye_right_pub = rospy.Publisher('/hollie/right_eye_pan_position_controller/command', Float64, queue_size=1)
@@ -87,7 +87,7 @@ class ResetNodesState2(State):
     self._status_pub = rospy.Publisher('/status', String, queue_size=1)
 
   def execute(self, userdata):
-    self._set_memory_proxy(False)
+    self._set_probe_proxy(True)
     self._reset_pan_eye_left_pub.publish(Float64(0.0))
     self._reset_pan_eye_right_pub.publish(Float64(0.0))
     self._reset_tilt_eye_pub.publish(Float64(0.0))
