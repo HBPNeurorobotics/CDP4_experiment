@@ -39,7 +39,7 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
     last_time.value = current_time
 
     elapsed.value = elapsed.value + dt
-    if elapsed.value < 0.01:
+    if elapsed.value < 0.009:
         return
     else:
         elapsed.value = 0.
