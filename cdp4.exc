@@ -24,11 +24,11 @@
 
     <bibiConf src="cdp4.bibi"/>
     <experimentControl>
-      <stateMachine xsi:type="SMACHStateMachine" id="SaccadeCharacteristics" src="saccade_characteristics_machine.exd"/>
-      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="change_posters_machine.exd"/ -->
-      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="change_posters_machine_detect.exd"/ -->
-      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="change_natural_machine.exd"/ -->
-      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="change_posters_machine_detect.exd"/ -->
+      <stateMachine xsi:type="SMACHStateMachine" id="SaccadeCharacteristics" src="sm/saccade_characteristics_machine.exd"/>
+      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePosters" src="sm/change_posters_machine.exd"/ -->
+      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="sm/change_posters_machine_detect.exd"/ -->
+      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangeNatural" src="sm/change_natural_machine.exd"/ -->
+      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangeNaturalDetect" src="sm/change_posters_machine_detect.exd"/ -->
     </experimentControl>
     <cameraPose>
         <cameraPosition x="3.25" y="4.75" z="4.25"/>
