@@ -191,6 +191,9 @@ def rois(bag, plot):
     for (i, roi) in enumerate(rois):
         if roi is None:
             continue
+        if len(roi) < 50 or len(roi[0]) < 50:
+            print "padding roi"
+            roi = np.pad(roi, ((0, 50 - len(roi)), (0, 50 - len(roi[0])), (0, 0)), 'constant', constant_values=(0, 0))
         background[tilt_values[i]-25:tilt_values[i]+25, pan_values[i]-25:pan_values[i]+25, :] = roi
 
     fig = plt.figure()
