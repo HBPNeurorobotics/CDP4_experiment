@@ -18,9 +18,6 @@ network_input_width = float(rospy.get_param('~network_input_width', '256'))
 @nrp.MapVariable("elapsed", initial_value = 0)
 @nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
 def image_to_saliency(t, saliency, saliency_pub, saliency_image_pub, bridge, image, last_time, elapsed):
-    if t < 1.0:
-        return
-
     if image.value is None:
         return
 

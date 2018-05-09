@@ -22,9 +22,6 @@ def image_to_saliency(t, saliency, saliency_pub, saliency_image_pub, bridge, ima
     if published.value:
         return
 
-    if t < 1.0:
-        return
-
     if image.value is None:
         return
 

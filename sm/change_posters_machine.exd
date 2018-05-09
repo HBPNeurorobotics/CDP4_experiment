@@ -71,18 +71,6 @@ class ResetNodesState(State):
 
 with sm:
   StateMachine.add(
-    'initial_wait',
-    states.ClockDelayState(waittime=1),
-    transitions = {'valid': 'initial_wait', 'invalid': 'initial_reset_nodes', 'preempted': PREEMPTED}
-  )
-
-  StateMachine.add(
-    'initial_reset_nodes',
-    ResetNodesState(),
-    transitions = {'success': 'wait'}
-  )
-
-  StateMachine.add(
     'wait',
     states.ClockDelayState(waittime=5),
     transitions = {'valid': 'wait', 'invalid': 'export_memory', 'preempted': PREEMPTED}
@@ -103,13 +91,7 @@ with sm:
   StateMachine.add(
     'move_clock',
     SetModelPose("clock_poster_1", Vector3(3.8, 2.0, 3.0), Quaternion(0.0, 0.0, math.pi, 0.0), Vector3(1.0, 1.0, 1.0)),
-    transitions = {'succeeded': 'reset_nodes', 'aborted': ERROR, 'preempted': PREEMPTED}
-  )
-
-  StateMachine.add(
-    'reset_nodes',
-    ResetNodesState(),
-    transitions = {'success': 'wait2'}
+    transitions = {'succeeded': 'wait2', 'aborted': ERROR, 'preempted': PREEMPTED}
   )
 
   StateMachine.add(

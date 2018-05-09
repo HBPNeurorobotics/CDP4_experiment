@@ -15,9 +15,6 @@ from embodied_attention.srv import Target
 @nrp.MapVariable("hm_proxy", initial_value = rospy.ServiceProxy('/saccade', Target))
 @nrp.MapRobotSubscriber("saliency_map", Topic("/saliency_map", Float32MultiArray))
 def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_map, bridge, visual_neurons_pub, motor_neurons_pub, last_time, hm_proxy):
-    if t < 1.0:
-        return
-
     if saliency_map.value is None:
         return
 

@@ -99,18 +99,6 @@ class ResetNodesState2(State):
 
 with sm:
   StateMachine.add(
-    'initial_wait',
-    states.ClockDelayState(waittime=1),
-    transitions = {'valid': 'initial_wait', 'invalid': 'initial_reset_nodes', 'preempted': PREEMPTED}
-  )
-
-  StateMachine.add(
-    'initial_reset_nodes',
-    ResetNodesState(),
-    transitions = {'success': 'wait'}
-  )
-
-  StateMachine.add(
     'wait',
     states.ClockDelayState(waittime=5),
     transitions = {'valid': 'wait', 'invalid': 'export_memory', 'preempted': PREEMPTED}
