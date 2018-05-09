@@ -3,8 +3,6 @@
   <timestep>1</timestep>
   <brainModel>
     <file>brain_model/idle_brain.py</file>
-    <populations population="neurons" xsi:type="Range" from="0" to="2"/>
-    <populations population="record" xsi:type="Range" from="0" to="2"/>
   </brainModel>
   <bodyModel>hollie_robot/hollie.sdf</bodyModel>
 
