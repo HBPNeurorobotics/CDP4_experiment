@@ -234,7 +234,7 @@ def amplitudes(bag, plot):
     average_amplitude = total_amplitude/len(amplitudes)
     print "Average saccade amplitude: %f" % average_amplitude
 
-    print "Correlation of fixation number and saccade aplitude:"
+    print "Correlation of fixation number and saccade amplitude:"
     print np.corrcoef(range(0, len(amplitudes)), amplitudes)
 
     print "Correlation of viewing time and saccade amplitude:"
@@ -288,7 +288,7 @@ def amp_dur(bag, plot):
     durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
     print "Fixation durations by ordinal fixation number: " + str(durations)
 
-    print "Correlation of saccade aplitude and fixation duration:"
+    print "Correlation of saccade amplitude and fixation duration:"
     print np.corrcoef(amplitudes, durations)
 
     fig = plt.figure()
