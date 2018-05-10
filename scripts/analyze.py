@@ -29,10 +29,10 @@ def split_bag(bag):
 
 def general(bag, plot):
     print '### General ###'
-    target_msgs = [msg for msg in bag.read_messages('/status')]
-    print 'Droppped %d saccades:' % len(target_msgs)
-    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    droppings = [msg for msg in bag.read_messages('/status') if x.message.data == 'dropping']
+    timestamps = [t.timestamp.to_sec() for t in droppings]
     normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+    print 'Droppped %d saccades:' % len(droppings)
     for t in normalized_timestamps:
         print '\tat ' + str(t)
 
