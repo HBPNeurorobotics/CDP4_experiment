@@ -11,7 +11,7 @@ def split_bag(bag):
     status_msgs = [msg for msg in bag.read_messages('/status') if msg.message.data == 'reset']
     timestamps = [t.timestamp for t in status_msgs]
     if len(timestamps) == 0:
-        print 'No status message found'
+        print 'No reset message found'
         return
     print 'Going to split at: ' + str(timestamps)
 
@@ -268,53 +268,58 @@ def rois(bag, plot):
     print
 
 def main(argv):
+
     cmd = ''
     plot = False
+
     try:
-        opts, args = getopt.getopt(argv,'hpb:c:',['bag=', 'cmd='])
-    except getopt.GetoptError:
-        print 'analyze.py -b <bagfile> -c <cmd>'
+        opts, args = getopt.getopt(argv,'hpc:',['cmd='])
+    except getopt.GetoptError as err:
+        print str(err)
+        print 'analyze.py -c <cmd> [<bagfiles>]'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print 'analyze.py -b <bagfile> -c <cmd>'
+            print 'analyze.py -c <cmd> [<bagflies>]'
             sys.exit()
         elif opt == '-p':
             plot = True
-        elif opt in ('-b', '--bag'):
-            bag_file = arg
         elif opt in ('-c', '--cmd'):
             cmd = arg
 
-    bag = rosbag.Bag(bag_file)
+    bags = []
+    for bag in args:
+       bags.append(rosbag.Bag(bag))
 
-    if cmd == 'split':
-        split_bag(bag)
-    elif cmd == 'general':
-        general(bag, plot)
-    elif cmd == 'rates':
-        rates(bag, plot)
-    elif cmd == 'durations':
-        durations(bag, plot)
-    elif cmd == 'amplitudes':
-        amplitudes(bag, plot)
-    elif cmd == 'targets':
-        targets(bag, plot)
-    elif cmd == 'rois':
-        rois(bag, plot)
-    elif cmd == 'amp_dur':
-        amp_dur(bag, plot)
-    elif cmd == 'all':
-        general(bag, plot)
-        rates(bag, plot)
-        durations(bag, plot)
-        amplitudes(bag, plot)
-        targets(bag, plot)
-        rois(bag, plot)
-        amp_dur(bag, plot)
-    else:
-        print 'Command not found'
-        print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur'
+    for bag in bags:
+        print "##### Evaluating bag %s #####" % bag.filename
+        if cmd == 'split':
+            split_bag(bag)
+        elif cmd == 'general':
+            general(bag, plot)
+        elif cmd == 'rates':
+            rates(bag, plot)
+        elif cmd == 'durations':
+            durations(bag, plot)
+        elif cmd == 'amplitudes':
+            amplitudes(bag, plot)
+        elif cmd == 'targets':
+            targets(bag, plot)
+        elif cmd == 'rois':
+            rois(bag, plot)
+        elif cmd == 'amp_dur':
+            amp_dur(bag, plot)
+        elif cmd == 'all':
+            general(bag, plot)
+            rates(bag, plot)
+            durations(bag, plot)
+            amplitudes(bag, plot)
+            targets(bag, plot)
+            rois(bag, plot)
+            amp_dur(bag, plot)
+        else:
+            print 'Command not found or not specified'
+            print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur'
 
 if __name__ == '__main__':
    main(sys.argv[1:])
