@@ -19,6 +19,7 @@
     <!-- environmentModel src="CDP4_models/world_six_posters.sdf" -->
     <!-- environmentModel src="CDP4_models/world_ten_posters.sdf" -->
     <environmentModel src="CDP4_models/world_fifteen_posters.sdf">
+    <!-- environmentModel src="CDP4_models/world_fifteen_posters_2.sdf" -->
       <robotPose x="0.0" y="0.0" z="0.024" ux="0.0" uy="0.0" uz="0.0" theta="0.0"/>
     </environmentModel>
 
@@ -27,6 +28,7 @@
       <stateMachine xsi:type="SMACHStateMachine" id="SaccadeCharacteristics" src="sm/saccade_characteristics_machine.exd"/>
       <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePosters" src="sm/change_posters_machine.exd"/ -->
       <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePostersDetect" src="sm/change_posters_machine_detect.exd"/ -->
+      <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangePosters2" src="sm/change_posters_2_machine.exd"/ -->
       <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangeNatural" src="sm/change_natural_machine.exd"/ -->
       <!-- stateMachine xsi:type="SMACHStateMachine" id="ChangeNaturalDetect" src="sm/change_natural_machine_detect.exd"/ -->
     </experimentControl>
