@@ -30,34 +30,33 @@ def split_bag(bag):
 def general(bag, plot):
     print '### General ###'
     target_msgs = [msg for msg in bag.read_messages('/status')]
-    print "Droppped %d saccades:" % len(target_msgs)
+    print 'Droppped %d saccades:' % len(target_msgs)
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
     for t in normalized_timestamps:
-        print "\tat " + str(t)
+        print '\tat ' + str(t)
 
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
     normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-    print "Time to first saccade execution: %f" % normalized_timestamps[0]
-    print "Number of fixations: %d" % len(normalized_timestamps)
+    print 'Number of fixations: %d' % len(normalized_timestamps)
 
     labels = [msg.message.data for msg in bag.read_messages('/label')]
-    print "Labels: %s" % str(labels)
+    print 'Labels: %s' % str(labels)
     print
+
+def extract_rates(bag):
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+    rates = [(i+1)/x for i, x in enumerate(normalized_timestamps)]
+    return (normalized_timestamps, rates)
 
 def rates(bag, plot):
     print '### Rates ###'
-    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
-    timestamps = [t.timestamp.to_sec() for t in target_msgs]
-    if len(timestamps) == 0:
-        print 'No target message found'
-        return
-
-    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-    
-    rates = [(i+1)/x for i, x in enumerate(normalized_timestamps)]
-    print "Saccade rates: " + str(rates)
+    (normalized_timestamps, rates) = extract_rates(bag)
+    print 'Normalized timestamps: ' + str(normalized_timestamps)
+    print 'Saccade rates: ' + str(rates)
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -66,32 +65,29 @@ def rates(bag, plot):
     plt.ylabel('rate (saccades/second)')
     plt.grid(True)
     plt.plot(normalized_timestamps, rates)
-    plt.savefig(bag.filename.split(".")[0] + "_rates.png", dpi=150)
+    plt.savefig(bag.filename.split('.')[0] + '_rates.png', dpi=150)
     if plot:
         plt.show()
     print
 
-def durations(bag, plot):
-    print '### Fixation durations ###'
+def extract_durations(bag):
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
     timestamps = [t.timestamp.to_sec() for t in target_msgs]
-    if len(timestamps) == 0:
-        print 'No target message found'
-        return
-
     normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-
     durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
-    print "Fixation durations by ordinal fixation number: " + str(durations)
+    return (normalized_timestamps, durations)
 
+def durations(bag, plot):
+    print '### Fixation durations ###'
+    (normalized_timestamps, durations) = extract_durations(bag)
+    print 'Normalized timestamps: ' + str(normalized_timestamps)
+    print 'Fixation durations: ' + str(durations)
+
+    print 'Time to first saccade execution: %f' % normalized_timestamps[0]
     duration_avgs = map(lambda (i, x): sum(durations[0:i+1])/(i+1), enumerate(durations))
-    print "Average fixation duration: " + str(duration_avgs[len(duration_avgs) - 1])
-
-    print "Correlation of fixation number and fixation duration:"
-    print np.corrcoef(range(0, len(durations)), durations)
-
-    print "Correlation of viewing time and fixation duration:"
-    print np.corrcoef(normalized_timestamps[1:], durations)
+    print 'Average fixation duration: ' + str(duration_avgs[len(duration_avgs) - 1])
+    print 'Correlation of fixation number and fixation duration: ' + str(np.corrcoef(range(0, len(durations)), durations)[0][1])
+    print 'Correlation of viewing time and fixation duration: ' + str(np.corrcoef(normalized_timestamps[1:], durations)[0][1])
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -102,7 +98,7 @@ def durations(bag, plot):
     plt.plot(durations, label='duration')
     plt.plot(duration_avgs, label='average duration')
     plt.legend()
-    plt.savefig(bag.filename.split(".")[0] + "_durations.png", dpi=150)
+    plt.savefig(bag.filename.split('.')[0] + '_durations.png', dpi=150)
     if plot:
         plt.show()
 
@@ -113,10 +109,75 @@ def durations(bag, plot):
     plt.ylabel('number of fixations')
     plt.grid(True)
     plt.hist(durations, bins='doane')
-    plt.savefig(bag.filename.split(".")[0] + "_duration_distribution.png", dpi=150)
+    plt.savefig(bag.filename.split('.')[0] + '_duration_distribution.png', dpi=150)
     if plot:
         plt.show()
     print
+
+def extract_amplitudes(bag):
+    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
+    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
+    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
+    timestamps = [t.timestamp.to_sec() for t in target_msgs]
+    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
+    pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
+    tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
+    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y) * (360/(2*math.pi)), zip(pan_amplitudes, tilt_amplitudes))
+    return (normalized_timestamps, amplitudes)
+
+def amplitudes(bag, plot):
+    print '### Saccade amplitudes ###'
+    (normalized_timestamps, amplitudes) = extract_amplitudes(bag)
+    print 'Normalized timestamps: ' + str(normalized_timestamps)
+    print 'Saccade amplitudes: ' + str(amplitudes)
+
+    total_amplitude = sum(amplitudes)
+    print 'Total saccade amplitude: %f' % total_amplitude
+    average_amplitude = total_amplitude/len(amplitudes)
+    print 'Average saccade amplitude: %f' % average_amplitude
+    print 'Correlation of fixation number and saccade amplitude: ' + str(np.corrcoef(range(0, len(amplitudes)), amplitudes)[0][1])
+    print 'Correlation of viewing time and saccade amplitude: ' + str(np.corrcoef(normalized_timestamps[1:], amplitudes)[0][1])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Saccade amplitudes by ordinal fixation number')
+    plt.xlabel('fixation #')
+    plt.ylabel('amplitude (deg)')
+    plt.grid(True)
+    plt.plot(amplitudes)
+    plt.savefig(bag.filename.split('.')[0] + '_amplitudes.png', dpi=fig.dpi)
+    if plot:
+        plt.show()
+
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(111)
+    plt.title('Saccade amplitude distribution')
+    plt.xlabel('amplitude (deg)')
+    plt.ylabel('number of saccades')
+    plt.grid(True)
+    plt.hist(amplitudes, bins='doane')
+    plt.savefig(bag.filename.split('.')[0] + '_amplitude_distribution.png', dpi=150)
+    if plot:
+        plt.show()
+    print
+
+def amp_dur(bag, plot):
+    print '### Amplitudes vs Duration ###'
+    (normalized_timestamps, amplitudes) = extract_amplitudes(bag)
+    (normalized_timestamps, durations) = extract_durations(bag)
+
+    print 'Correlation of saccade amplitude and fixation duration: ' + str(np.corrcoef(amplitudes, durations)[0][1])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Saccade amplitudes vs fixation durations')
+    plt.xlabel('amplitude (deg)')
+    plt.ylabel('fixation duration (s)')
+    plt.grid(True)
+    plt.plot(amplitudes, durations, 'b.')
+    plt.savefig(bag.filename.split('.')[0] + '_amp_dur.png', dpi=fig.dpi)
+    if plot:
+        plt.show()
 
 def targets(bag, plot):
     print '### Targets ###'
@@ -124,8 +185,8 @@ def targets(bag, plot):
     tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
     pan_values.insert(0, 0)
     tilt_values.insert(0, 0)
-    print "Pan values: " + str(pan_values)
-    print "Tilt values: " + str(tilt_values)
+    print 'Pan values: ' + str(pan_values)
+    print 'Tilt values: ' + str(tilt_values)
 
     x_limits = []
     y_limits = []
@@ -172,7 +233,7 @@ def targets(bag, plot):
 
     for i, xy in enumerate(zip(pan_values, tilt_values)):
         ax.annotate(i, xy=xy, textcoords='data')
-    plt.savefig(bag.filename.split(".")[0] + "_targets.png", dpi=fig.dpi)
+    plt.savefig(bag.filename.split('.')[0] + '_targets.png', dpi=fig.dpi)
     if plot:
         plt.show()
     print
@@ -184,7 +245,7 @@ def rois(bag, plot):
     rois = [msg.message for msg in bag.read_messages('/roi')]
     from cv_bridge import CvBridge, CvBridgeError
     cv_bridge = CvBridge()
-    rois = map(lambda x: cv_bridge.imgmsg_to_cv2(x, "rgb8"), rois)
+    rois = map(lambda x: cv_bridge.imgmsg_to_cv2(x, 'rgb8'), rois)
     background = np.uint8(np.zeros([800,800,3]))
     pan_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background[0])), pan_values)
     tilt_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background)), tilt_values)
@@ -192,7 +253,7 @@ def rois(bag, plot):
         if roi is None:
             continue
         if len(roi) < 50 or len(roi[0]) < 50:
-            print "padding roi"
+            print 'Padding roi ' + str(i)
             roi = np.pad(roi, ((0, 50 - len(roi)), (0, 50 - len(roi[0])), (0, 0)), 'constant', constant_values=(0, 0))
         background[tilt_values[i]-25:tilt_values[i]+25, pan_values[i]-25:pan_values[i]+25, :] = roi
 
@@ -201,113 +262,16 @@ def rois(bag, plot):
     plt.xticks([0, len(background[0])/2, len(background[0])], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
     plt.yticks([0, len(background)/2, len(background)], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
     plt.imshow(background)
-    plt.savefig(bag.filename.split(".")[0] + "_rois.png", dpi=fig.dpi)
+    plt.savefig(bag.filename.split('.')[0] + '_rois.png', dpi=fig.dpi)
     if plot:
         plt.show()
     print
-
-def amplitudes(bag, plot):
-    print '### Saccade amplitudes ###'
-    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
-    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
-    if len(pan_values) == 0 or len(tilt_values) == 0:
-        print 'No target message found'
-        return
-
-    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
-    timestamps = [t.timestamp.to_sec() for t in target_msgs]
-    if len(timestamps) == 0:
-        print 'No target message found'
-        return
-
-    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-
-    pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
-    tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
-
-    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y) * (360/(2*math.pi)), zip(pan_amplitudes, tilt_amplitudes))
-    print "Saccade amplitudes: " + str(amplitudes)
-
-    total_amplitude = sum(amplitudes)
-    print "Total saccade amplitude: %f" % total_amplitude
-
-    average_amplitude = total_amplitude/len(amplitudes)
-    print "Average saccade amplitude: %f" % average_amplitude
-
-    print "Correlation of fixation number and saccade amplitude:"
-    print np.corrcoef(range(0, len(amplitudes)), amplitudes)
-
-    print "Correlation of viewing time and saccade amplitude:"
-    print np.corrcoef(normalized_timestamps[1:], amplitudes)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.title('Saccade amplitudes by ordinal fixation number')
-    plt.xlabel('fixation #')
-    plt.ylabel('amplitude (deg)')
-    plt.grid(True)
-    plt.plot(amplitudes)
-    plt.savefig(bag.filename.split(".")[0] + "_amplitudes.png", dpi=fig.dpi)
-    if plot:
-        plt.show()
-
-    fig2 = plt.figure()
-    ax2 = fig2.add_subplot(111)
-    plt.title('Saccade amplitude distribution')
-    plt.xlabel('amplitude (deg)')
-    plt.ylabel('number of saccades')
-    plt.grid(True)
-    plt.hist(amplitudes, bins='doane')
-    plt.savefig(bag.filename.split(".")[0] + "_amplitude_distribution.png", dpi=150)
-    if plot:
-        plt.show()
-    print
-
-def amp_dur(bag, plot):
-    print '### Amplitudes vs Duration ###'
-    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
-    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
-    if len(pan_values) == 0 or len(tilt_values) == 0:
-        print 'No target message found'
-        return
-
-    pan_amplitudes = [j-i for i, j in zip(pan_values[:-1], pan_values[1:])]
-    tilt_amplitudes = [j-i for i, j in zip(tilt_values[:-1], tilt_values[1:])]
-
-    amplitudes = map(lambda (x,y): math.sqrt(x*x + y*y) * (360/(2*math.pi)), zip(pan_amplitudes, tilt_amplitudes))
-    print "Saccade amplitudes: " + str(amplitudes)
-
-    target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
-    timestamps = [t.timestamp.to_sec() for t in target_msgs]
-    if len(timestamps) == 0:
-        print 'No target message found'
-        return
-
-    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-
-    durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
-    print "Fixation durations by ordinal fixation number: " + str(durations)
-
-    print "Correlation of saccade amplitude and fixation duration:"
-    print np.corrcoef(amplitudes, durations)
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    plt.title('Saccade amplitudes vs fixation durations')
-    plt.xlabel('amplitude (deg)')
-    plt.ylabel('fixation duration (s)')
-    plt.grid(True)
-    plt.plot(amplitudes, durations, 'b.')
-    plt.savefig(bag.filename.split(".")[0] + "_amp_dur.png", dpi=fig.dpi)
-    if plot:
-        plt.show()
-
 
 def main(argv):
     cmd = ''
     plot = False
     try:
-        opts, args = getopt.getopt(argv,"hpb:c:",["bag=", "cmd="])
+        opts, args = getopt.getopt(argv,'hpb:c:',['bag=', 'cmd='])
     except getopt.GetoptError:
         print 'analyze.py -b <bagfile> -c <cmd>'
         sys.exit(2)
@@ -317,9 +281,9 @@ def main(argv):
             sys.exit()
         elif opt == '-p':
             plot = True
-        elif opt in ("-b", "--bag"):
+        elif opt in ('-b', '--bag'):
             bag_file = arg
-        elif opt in ("-c", "--cmd"):
+        elif opt in ('-c', '--cmd'):
             cmd = arg
 
     bag = rosbag.Bag(bag_file)
@@ -352,5 +316,5 @@ def main(argv):
         print 'Command not found'
         print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur'
 
-if __name__ == "__main__":
+if __name__ == '__main__':
    main(sys.argv[1:])
