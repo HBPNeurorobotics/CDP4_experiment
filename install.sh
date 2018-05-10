@@ -33,13 +33,13 @@ python setup.py install --user
 # download saliency model
 cd ../model/
 if [ $gpu ]; then
-  curl -k -o model.cpkt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
-  curl -k -o model.cpkt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
-  curl -k -o model.cpkt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
+  curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
+  curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
+  curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
 else
-  curl -k -o model.cpkt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
-  curl -k -o model.cpkt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
-  curl -k -o model.cpkt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
+  curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
+  curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
+  curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
 fi
 
 cd $HBP/GazeboRosPackages/src
