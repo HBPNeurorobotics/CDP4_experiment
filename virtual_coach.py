@@ -6,7 +6,7 @@ import os
 vc = VirtualCoach(environment='local')
 fname_base = "/home/nrpuser/.ros/cdp4/experiment"
 
-for i in range(0, 9):
+for i in range(0, 10):
     print "### Running experiment %d" % i
     print "Launching"
     sim = vc.launch_experiment('cdp4')
