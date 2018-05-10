@@ -17,6 +17,7 @@
 
   <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /rosout /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status /hollie/camera/left/camera_info"/>
 
+  <!--
   <group ns="/hollie/camera">
     <node name="stereo_image_proc" pkg="stereo_image_proc" type="stereo_image_proc">
       <param name="min_disparity" value="-16"/>
@@ -25,6 +26,7 @@
       <param name="queue_size" value="800"/>
     </node>
   </group>
+  -->
 
   <!--
   <node name="saliency" pkg="embodied_attention" type="saliency.py" output="screen">
