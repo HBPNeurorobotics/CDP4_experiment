@@ -12,7 +12,7 @@ for i in range(0, 10):
     sim = vc.launch_experiment('cdp4')
     print "Starting"
     sim.start()
-    while rospy.get_time() < 11.1:
+    while rospy.get_time() < 10.1:
         time.sleep(2)
     print "Pausing"
     sim.pause()
