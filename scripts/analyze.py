@@ -86,6 +86,7 @@ def durations(bag, plot):
     print 'Time to first saccade execution: %f' % normalized_timestamps[0]
     duration_avgs = map(lambda (i, x): sum(durations[0:i+1])/(i+1), enumerate(durations))
     print 'Average fixation duration: ' + str(duration_avgs[len(duration_avgs) - 1])
+    print 'Standard deviation of fixation duration: ' + str(np.std(durations))
     print 'Correlation of fixation number and fixation duration: ' + str(np.corrcoef(range(0, len(durations)), durations)[0][1])
     print 'Correlation of viewing time and fixation duration: ' + str(np.corrcoef(normalized_timestamps[1:], durations)[0][1])
 
@@ -135,6 +136,7 @@ def amplitudes(bag, plot):
     print 'Total saccade amplitude: %f' % total_amplitude
     average_amplitude = total_amplitude/len(amplitudes)
     print 'Average saccade amplitude: %f' % average_amplitude
+    print 'Standard deviation of saccade amplitudes: ' + str(np.std(amplitudes))
     print 'Correlation of fixation number and saccade amplitude: ' + str(np.corrcoef(range(0, len(amplitudes)), amplitudes)[0][1])
     print 'Correlation of viewing time and saccade amplitude: ' + str(np.corrcoef(normalized_timestamps[1:], amplitudes)[0][1])
 
