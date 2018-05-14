@@ -20,7 +20,7 @@
     <!-- environmentModel src="CDP4_models/world_ten_posters.sdf" -->
     <environmentModel src="CDP4_models/world_fifteen_posters.sdf">
     <!-- environmentModel src="CDP4_models/world_fifteen_posters_2.sdf" -->
-      <robotPose x="0.0" y="0.0" z="0.024" ux="0.0" uy="0.0" uz="0.0" theta="0.0"/>
+      <robotPose x="-2.0" y="0.0" z="0.024" ux="0.0" uy="0.0" uz="0.0" theta="0.0"/>
     </environmentModel>
 
     <bibiConf src="cdp4.bibi"/>
