@@ -49,6 +49,7 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
         # call service
         pixel = camera_model.value.project3dToPixel((point.x - pan.value.data, point.y - tilt.value.data, point.z))
         x = int(pixel[0] * (len(saliency_map[0])/float(camera_info_left.value.width)))
+        x = x + 6 # correction, bug in opencv?
         y = int(pixel[1] * (len(saliency_map)/float(camera_info_left.value.height)))
         if x >= 0 and x < len(saliency_map[0]) and y >=0 and y < len(saliency_map):
             from skimage.draw import circle

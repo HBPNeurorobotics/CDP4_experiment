@@ -67,9 +67,9 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
         point_torso = (-transformed.point.y, -transformed.point.z, transformed.point.x)
         pixel = camera_model.value.project3dToPixel(point_torso)
         x = int(pixel[0][0] * (len(saliency_map[0])/float(camera_info_left.value.width)))
+        x = x + 6 # correction, bug in opencv?
         y = int(pixel[0][1] * (len(saliency_map)/float(camera_info_left.value.height)))
         disparity = camera_model.value.getDisparity(point_torso[2])
-        x = x + disparity
         if x >= 0 and x < len(saliency_map[0]) and y >=0 and y < len(saliency_map):
             from skimage.draw import circle
             rr, cc = circle(y, x, 25, (len(saliency_map), len(saliency_map[0])))
