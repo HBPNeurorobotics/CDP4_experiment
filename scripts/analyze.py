@@ -269,6 +269,60 @@ def rois(bag, plot):
         plt.show()
     print
 
+def extract_bins(timestamps, values):
+    timestamps = timestamps[:-1]
+    bins = []
+    current_bin = []
+    time = 0.5
+    for (i, timestamp) in enumerate(timestamps):
+        if timestamp < time:
+            current_bin.append(values[i])
+        else:
+            bins.append(current_bin)
+            current_bin = []
+            time = time + 0.5
+    medians = map(lambda b: np.median(b), bins)
+    return medians
+
+def bins(bag, plot):
+    print '### Bins ###'
+    (timestamps, durations) = extract_durations(bag)
+    bins = extract_bins(timestamps, durations)
+    print "Durations bins: " + str(bins)
+    times = map(lambda x: x/2.0, range(1, len(bins) + 1))
+    print "Correlation of viewing time and fixation durations with bins: " + str(np.corrcoef(times, bins)[0][1])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Viewing time vs fixation durations in bins')
+    plt.xlabel('viewing time (s)')
+    plt.ylabel('fixation duration (s)')
+    plt.grid(True)
+    plt.plot(times, bins, 'b-')
+    plt.savefig(bag.filename.split('.')[0] + '_view_dur.png', dpi=fig.dpi)
+    if plot:
+        plt.show()
+
+    (timestamps, amplitudes) = extract_amplitudes(bag)
+    bins = extract_bins(timestamps, amplitudes)
+    print "Amplitude bins: " + str(bins)
+    times = map(lambda x: x/2.0, range(1, len(bins) + 1))
+    print "Correlation of viewing time and saccade amplitudes with bins: " + str(np.corrcoef(times, bins)[0][1])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.title('Viewing time vs saccade amplitude in bins')
+    plt.xlabel('viewing time (s)')
+    plt.ylabel('saccade amplitude (deg)')
+    plt.grid(True)
+    plt.plot(times, bins, 'b-')
+    plt.savefig(bag.filename.split('.')[0] + '_view_amp.png', dpi=fig.dpi)
+    if plot:
+        plt.show()
+
+    print
+
+
 def main(argv):
 
     cmd = ''
@@ -294,7 +348,7 @@ def main(argv):
        bags.append(rosbag.Bag(bag))
 
     for bag in bags:
-        print "##### Evaluating bag %s #####" % bag.filename
+        print "##### Evaluating %s #####" % bag.filename
         if cmd == 'split':
             split_bag(bag)
         elif cmd == 'general':
@@ -311,6 +365,8 @@ def main(argv):
             rois(bag, plot)
         elif cmd == 'amp_dur':
             amp_dur(bag, plot)
+        elif cmd == 'bins':
+            bins(bag, plot)
         elif cmd == 'all':
             general(bag, plot)
             rates(bag, plot)
@@ -319,9 +375,10 @@ def main(argv):
             targets(bag, plot)
             rois(bag, plot)
             amp_dur(bag, plot)
+            bins(bag, plot)
         else:
             print 'Command not found or not specified'
-            print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur'
+            print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur, bins'
 
 if __name__ == '__main__':
    main(sys.argv[1:])
