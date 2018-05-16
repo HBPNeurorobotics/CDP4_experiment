@@ -25,6 +25,6 @@ See nrp.launch for the different nodes provided:
 * embodied_attention attention.py - moves eyes of robot, initiates object identification, stores information in memory
 * embodied_attention recognize.py - provides object recognition
 * ros_holographic visual_memory_module.py - provides memory
-* embodied_attention visualizer.py - brief visualization of saliency and saccade mechanism
+* embodied_attention visualizer.py - visualization of saliency and saccade mechanism
 
 For timing reasons, the saliency and saccade models are also available in transfer functions image_to_saccade*.py
