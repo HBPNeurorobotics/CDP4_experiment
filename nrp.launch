@@ -47,8 +47,8 @@
     <param name="saliency_height" value="192"/>
     <param name="move_head" value="True"/>
     <param name="move_eyes" value="True"/>
-    <param name="shift" value="True"/>
-    <param name="recognize" value="True"/>
+    <param name="shift" value="False"/>
+    <param name="recognize" value="False"/>
     <param name="probe" value="False"/>
   </node>
   <node name="recognize" pkg="embodied_attention" type="recognize.py" output="screen">
