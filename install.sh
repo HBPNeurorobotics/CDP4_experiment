@@ -8,6 +8,7 @@ if [[ $# -ne 0 && $1 == "gpu" ]]; then
   gpu=1
 else
   echo "going to download cpu versions of models"
+  gpu=0
 fi
 
 DIR=$PWD
