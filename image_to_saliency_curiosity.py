@@ -1,6 +1,6 @@
 import rospy
 from sensor_msgs.msg import Image
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import PointStamped
 from cv_bridge import CvBridge
 from attention import Saliency
 from std_msgs.msg import Float32MultiArray
@@ -47,14 +47,14 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
     camera_model.value.fromCameraInfo(camera_info_left.value)
     for point in points.value:
         # call service
-        pixel = camera_model.value.project3dToPixel((point.x - pan.value.data, point.y - tilt.value.data, point.z))
+        pixel = camera_model.value.project3dToPixel((point.point.x - pan.value.data, point.point.y - tilt.value.data, point.point.z))
         x = int(pixel[0] * (len(saliency_map[0])/float(camera_info_left.value.width)))
         x = x + 6 # correction, bug in opencv?
         y = int(pixel[1] * (len(saliency_map)/float(camera_info_left.value.height)))
         if x >= 0 and x < len(saliency_map[0]) and y >=0 and y < len(saliency_map):
             from skimage.draw import circle
             rr, cc = circle(y, x, 25, (len(saliency_map), len(saliency_map[0])))
-            saliency_map[rr, cc] = 0.
+            saliency_map[rr, cc] = saliency_map[rr, cc] * min(1, (t - point.header.stamp.to_sec()))
 
     saliency_map_image = bridge.value.cv2_to_imgmsg(np.uint8(saliency_map * 255.), "mono8")
     saliency_image_pub.value.publish(saliency_map_image)
