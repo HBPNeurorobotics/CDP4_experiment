@@ -72,7 +72,7 @@ class ResetNodesState(State):
 with sm:
   StateMachine.add(
     'wait',
-    states.ClockDelayState(waittime=6),
+    states.ClockDelayState(waittime=8.7),
     transitions = {'valid': 'wait', 'invalid': 'export_memory', 'preempted': PREEMPTED}
   )
 
