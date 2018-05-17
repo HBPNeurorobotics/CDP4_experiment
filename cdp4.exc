@@ -9,19 +9,19 @@
     <configuration type="3d-settings" src="cdp4.3ds"/>
     <maturity>production</maturity>
 
-    <!--
     <environmentModel src="CDP4_models/world_indoor.sdf">
-    <environmentModel src="CDP4_models/world_indoor_2.sdf">
-      <robotPose x="-0.75" y="-0.97" z="0.0" ux="0.0" uy="0.0" uz="1.0" theta="0.0"/>
+    <!-- environmentModel src="CDP4_models/world_indoor_2.sdf" -->
+      <robotPose x="0.0" y="-1.0" z="0.0" ux="0.0" uy="0.0" uz="1.0" theta="0.0"/>
     </environmentModel>
-    -->
 
     <!-- environmentModel src="CDP4_models/world_six_posters.sdf" -->
     <!-- environmentModel src="CDP4_models/world_ten_posters.sdf" -->
-    <environmentModel src="CDP4_models/world_fifteen_posters.sdf">
+    <!-- environmentModel src="CDP4_models/world_fifteen_posters.sdf" -->
     <!-- environmentModel src="CDP4_models/world_fifteen_posters_2.sdf" -->
+    <!--
       <robotPose x="-2.0" y="0.0" z="0.024" ux="0.0" uy="0.0" uz="0.0" theta="0.0"/>
     </environmentModel>
+    -->
 
     <bibiConf src="cdp4.bibi"/>
     <experimentControl>
