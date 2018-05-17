@@ -52,7 +52,7 @@ def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_p
     camera_model.value.fromCameraInfo(camera_info_left.value)
     for point in points.value:
         # call service
-        pixel = camera_model.value.project3dToPixel((point.point.x - pan.value.data, point.point.y - tilt.value.data, point.point.z))
+        pixel = camera_model.value.project3dToPixel((point.point.x - pan.value, point.point.y - tilt.value, point.point.z))
         x = int(pixel[0] * (len(saliency_map_current[0])/float(camera_info_left.value.width)))
         x = x + 6 # correction, bug in opencv?
         y = int(pixel[1] * (len(saliency_map_current)/float(camera_info_left.value.height)))
