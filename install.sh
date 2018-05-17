@@ -3,12 +3,15 @@
 # system dependencies:
 # apt-get install python-pip python-dev python-virtualenv protobuf-compiler python-pil python-lxml python-dev git
 
-if [[ $# -ne 0 && $1 == "gpu" ]]; then
+printf "\033[1;33mWould you like to install the GPU version of tensorflow? (Y/n)\033[0m\n"
+read tf_gpu
+if [ "$tf_gpu" == "Y" -o "$tf_gpu" == "y" ]
+then
   echo "going to download gpu versions of models"
   gpu=1
 else
   echo "going to download cpu versions of models"
-  gpu=0
+  unset gpu
 fi
 
 DIR=$PWD
@@ -74,14 +77,17 @@ catkin_make
 
 # install tensorflow
 cd $HOME/.opt
-virtualenv --system-site-packages tensorflow_venv
-source tensorflow_venv/bin/activate
-if [ $gpu ]; then
-  pip install --upgrade tensorflow-gpu
-else
-  pip install --upgrade tensorflow
+if [ ! -d tensorflow_venv ]
+then
+    virtualenv --system-site-packages tensorflow_venv
+    source tensorflow_venv/bin/activate
+    if [ $gpu ]; then
+        pip install --upgrade tensorflow-gpu==1.6.0
+    else
+        pip install --upgrade tensorflow==1.6.0
+    fi
+    deactivate
 fi
-deactivate
 
 # install object detection models
 if cd models; then
@@ -94,12 +100,15 @@ fi
 cd models/research
 protoc object_detection/protos/*.proto --python_out=.
 
-# install pretrained models
-mkdir -p $HOME/.opt/graph_def
-cd /tmp
-curl -OL http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz
-tar -xzf faster_rcnn_resnet101_coco_11_06_2017.tar.gz faster_rcnn_resnet101_coco_11_06_2017/frozen_inference_graph.pb
-cp -a faster_rcnn_resnet101_coco_11_06_2017 $HOME/.opt/graph_def/
-ln -sf $HOME/.opt/graph_def/faster_rcnn_resnet101_coco_11_06_2017/frozen_inference_graph.pb $HOME/.opt/graph_def/frozen_inference_graph.pb
+if [ ! -d $HOME/.opt/graph_def ]
+then
+    # install pretrained models
+    mkdir -p $HOME/.opt/graph_def
+    cd /tmp
+    curl -OL http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz
+    tar -xzf faster_rcnn_resnet101_coco_11_06_2017.tar.gz faster_rcnn_resnet101_coco_11_06_2017/frozen_inference_graph.pb
+    cp -a faster_rcnn_resnet101_coco_11_06_2017 $HOME/.opt/graph_def/
+    ln -sf $HOME/.opt/graph_def/faster_rcnn_resnet101_coco_11_06_2017/frozen_inference_graph.pb $HOME/.opt/graph_def/frozen_inference_graph.pb
+fi
 
 cd $DIR
