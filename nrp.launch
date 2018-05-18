@@ -4,6 +4,9 @@
   <param name="hook" command="mkdir -p $(arg result_dir)" />
 
   <param name="tensorflow_path" value="$(env HOME)/.opt/tensorflow_venv/lib/python2.7/site-packages"/>
+  <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
+  <param name="network_input_width" value="256"/>
+  <param name="network_input_height" value="192"/>
   <param name="robot_description" textfile="$(env NRP_MODELS_DIRECTORY)/hollie_robot/urdf/hollie.urdf" />
 
   <rosparam file="$(env NRP_MODELS_DIRECTORY)/hollie_robot/head_control.yaml" command="load" />
@@ -30,9 +33,6 @@
 
   <!--
   <node name="saliency" pkg="embodied_attention" type="saliency.py" output="screen">
-    <param name="saliency_file" value="$(find embodied_attention)/model/model.ckpt"/>
-    <param name="network_input_width" value="256"/>
-    <param name="network_input_height" value="192"/>
     <param name="clip" value="False"/>
     <remap from="/rgb/image_raw" to="/hollie/camera/left/image_raw"/>
   </node>

@@ -8,9 +8,9 @@ from image_geometry import PinholeCameraModel
 from embodied_attention.srv import Transform
 
 tensorflow_path = rospy.get_param("tensorflow_path", "/opt/tensorflow_venv/lib/python2.7/site-packages")
-model_file = rospy.get_param('~saliency_file', '/tmp/model.ckpt')
-network_input_height = float(rospy.get_param('~network_input_height', '192'))
-network_input_width = float(rospy.get_param('~network_input_width', '256'))
+model_file = rospy.get_param('saliency_file', '/tmp/model.ckpt')
+network_input_height = float(rospy.get_param('network_input_height', '192'))
+network_input_width = float(rospy.get_param('network_input_width', '256'))
 
 @nrp.MapVariable("saliency", initial_value = Saliency(tensorflow_path, model_file, network_input_height, network_input_width, False))
 @nrp.MapVariable("saliency_pub", initial_value = rospy.Publisher("/saliency_map", Float32MultiArray, queue_size=1))
