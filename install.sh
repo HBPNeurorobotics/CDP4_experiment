@@ -16,10 +16,11 @@ fi
 
 DIR=$PWD
 
+# install our requirements in the platform venv
 source $VIRTUAL_ENV/bin/activate
-
 cd `dirname $0`
 pip install -r requirements.txt
+deactivate
 
 cd $HBP/GazeboRosPackages/src
 
