@@ -18,7 +18,7 @@
     <param name="publish_frequency" value="1000.0" />
   </node>
 
-  <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /rosout /clock /fov /saccade_target /tilt /pan /roi /label /probe_results /status /hollie/camera/left/camera_info"/>
+  <node pkg="rosbag" type="record" name="recorder" output="screen" args="-O $(arg result_dir)/experiment.bag /rosout /clock /fov /saccade_target /saccade_potential_target /tilt /pan /roi /label /probe_results /status /hollie/camera/left/camera_info /joint_states /hollie/eye_tilt_position_controller/command /hollie/left_eye_pan_position_controller/command /hollie/right_eye_pan_position_controller/command /hollie/neck_pitch_position_controller/command /hollie/neck_yaw_position_controller/command command"/>
 
   <!--
   <group ns="/hollie/camera">
