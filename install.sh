@@ -34,28 +34,36 @@ else
 fi
 
 cd embodied_attention/attention
-
 python setup.py install --user
-
-# download saliency model
 cd ..
 mkdir -p model
-if [ `cat model/config` == "gpu" ] && [ $gpu ]; then
-  echo "GPU weights already present"
-elif [ `cat model/config` == "cpu" ] && [ -z $gpu ]; then
-  echo "CPU weights already present"
-elif [ $gpu ]; then
-  curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
-  curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
-  curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
-  echo "gpu" > config
-else
-  curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
-  curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
-  curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
-  echo "cpu" > config
-fi
+cd model
+# download saliency model
 
+download_saliency () {
+    if [ $1 ]; then
+        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
+        curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
+        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
+        echo "gpu" > config
+    else
+        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
+        curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
+        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
+        echo "cpu" > config
+    fi
+}
+
+current_setup=`cat config`
+if [ -z $current_setup ]; then
+    download_saliency $gpu
+elif [ $current_setup  == "gpu" ] && [ $gpu ]; then
+  echo "GPU weights already present"
+elif [ $current_setup == "cpu" ] && [ -z $gpu ]; then
+    echo "CPU weights already present"
+else
+    download_saliency $gpu
+fi
 
 cd $HBP/GazeboRosPackages/src
 
