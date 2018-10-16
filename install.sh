@@ -34,7 +34,7 @@ else
 fi
 
 cd embodied_attention/attention
-python setup.py install --user
+pip install --user -e .
 cd ..
 mkdir -p model
 cd model
@@ -77,7 +77,7 @@ else
 fi
 
 cd holographic/vsa
-python setup.py install --user
+pip install --user -e .
 
 cd $HBP/Models/
 

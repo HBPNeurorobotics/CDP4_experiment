@@ -35,7 +35,7 @@ class ExportMemoryState(State):
     super(ExportMemoryState, self).__init__(outcomes=outcomes)
     self._export_memory_proxy = rospy.ServiceProxy('/dump', Dump)
     self._export_memory_msg = DumpRequest()
- 
+
   def execute(self, userdata):
     self._export_memory_msg.Path = "%s/%s.vec" % (result_dir, time.strftime("%Y-%m-%d-%H:%M:%S"))
     self._export_memory_proxy(self._export_memory_msg)
@@ -48,11 +48,11 @@ class ResetNodesState(State):
     self._clear_memory_proxy = rospy.ServiceProxy('/clear_memory', ClearMemory)
     self._clear_memory_msg = ClearMemoryRequest()
 
-    self._reset_pan_eye_left_pub = rospy.Publisher('/hollie/left_eye_pan_position_controller/command', Float64, queue_size=1)
-    self._reset_pan_eye_right_pub = rospy.Publisher('/hollie/right_eye_pan_position_controller/command', Float64, queue_size=1)
-    self._reset_tilt_eye_pub = rospy.Publisher('/hollie/eye_tilt_position_controller/command', Float64, queue_size=1)
-    self._reset_pan_head_pub = rospy.Publisher('/hollie/neck_yaw_position_controller/command', Float64, queue_size=1)
-    self._reset_tilt_head_pub = rospy.Publisher('/hollie/neck_pitch_position_controller/command', Float64, queue_size=1)
+    self._reset_pan_eye_left_pub = rospy.Publisher('/robot/left_eye_pan/pos', Float64, queue_size=1)
+    self._reset_pan_eye_right_pub = rospy.Publisher('/robot/right_eye_pan/pos', Float64, queue_size=1)
+    self._reset_tilt_eye_pub = rospy.Publisher('/robot/eye_tilt/pos', Float64, queue_size=1)
+    self._reset_pan_head_pub = rospy.Publisher('/robot/neck_yaw/pos', Float64, queue_size=1)
+    self._reset_tilt_head_pub = rospy.Publisher('/robot/neck_pitch/pos', Float64, queue_size=1)
 
     self._reset_saccade_pub = rospy.Publisher('/reset', Empty, queue_size=1)
 

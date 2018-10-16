@@ -23,7 +23,7 @@ network_input_width = float(rospy.get_param('network_input_width', '256'))
 @nrp.MapVariable("elapsed", initial_value = 0)
 @nrp.MapVariable("pan", initial_value = 0, scope=nrp.GLOBAL)
 @nrp.MapVariable("tilt", initial_value = 0, scope=nrp.GLOBAL)
-@nrp.MapRobotSubscriber("image", Topic("/hollie/camera/left/image_raw", Image))
+@nrp.MapRobotSubscriber("image", Topic("/icub_model/left_eye_camera/image_raw", Image))
 def image_to_saliency(t, image, bridge, saliency, saliency_pub, saliency_image_pub, points, camera_model, camera_info_left, last_time, elapsed, pan, tilt):
     if image.value is None or camera_info_left.value is None:
         return

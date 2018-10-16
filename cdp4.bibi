@@ -4,7 +4,17 @@
   <brainModel>
     <file>brain_model/idle_brain.py</file>
   </brainModel>
-  <bodyModel>hollie_robot/hollie.sdf</bodyModel>
+  <bodyModel>icub_model/model.sdf</bodyModel>
+  <transferFunction xsi:type="PythonTransferFunction">
+    #<![CDATA[
+    from sensor_msgs.msg import JointState
+
+    @nrp.MapRobotSubscriber("joints", Topic("/robot/joints", JointState))
+    @nrp.Neuron2Robot(Topic('/joint_states', JointState))
+    def joint_states_passthrough(t, joints):
+        return joints.value
+    #]]>
+  </transferFunction>
 
   <!-- standard -->
   <transferFunction xsi:type="PythonTransferFunction" src="image_to_saliency.py"/>

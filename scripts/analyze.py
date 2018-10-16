@@ -57,7 +57,7 @@ def rates(bag, plot):
     (normalized_timestamps, rates) = extract_rates(bag)
     print 'Normalized timestamps: ' + str(normalized_timestamps)
     print 'Saccade rates: ' + str(rates)
-    
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.title('Saccade rates')
@@ -192,7 +192,7 @@ def targets(bag, plot):
 
     x_limits = []
     y_limits = []
-    camera_infos = [msg.message for msg in bag.read_messages('/hollie/camera/left/camera_info')]
+    camera_infos = [msg.message for msg in bag.read_messages('/icub_model/left_eye_camera/image_info')]
     camera_info = camera_infos[0]
     from image_geometry import PinholeCameraModel
     camera_model = PinholeCameraModel()
