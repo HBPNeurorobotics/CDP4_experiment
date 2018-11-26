@@ -42,14 +42,14 @@ cd model
 
 download_saliency () {
     if [ $1 ]; then
-        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/hdjl7TjzSUqF1Ww/download"
-        curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/DCPB80foqkteuC4/download"
-        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/bkpmmvrVkeELapr/download"
+        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/index.php/s/tpbnsKfZdWwfbJa/download"
+        curl -k -o model.ckpt.index "https://neurorobotics-files.net/index.php/s/3FT8J4sqfcqqHi4/download"
+        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/index.php/s/oBYnPs6xoyYPitA/download"
         echo "gpu" > config
     else
-        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/owncloud/index.php/s/TNpWFSX8xLvfbYD/download"
-        curl -k -o model.ckpt.index "https://neurorobotics-files.net/owncloud/index.php/s/sDCFUGTrzJyhDA5/download"
-        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/owncloud/index.php/s/Scti429S7D11tMv/download"
+        curl -k -o model.ckpt.meta "https://neurorobotics-files.net/index.php/s/kRcjnp4qcHysb5y/download"
+        curl -k -o model.ckpt.index "https://neurorobotics-files.net/index.php/s/528KwtbR6xe3Kds/download"
+        curl -k -o model.ckpt.data-00000-of-00001 "https://neurorobotics-files.net/index.php/s/HZ4a8QWsFkFR9Xr/download"
         echo "cpu" > config
     fi
 }
