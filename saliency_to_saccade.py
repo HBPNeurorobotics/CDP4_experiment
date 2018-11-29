@@ -49,18 +49,17 @@ def saliency_to_saccade(t, saccade, target_pub, potential_target_pub, saliency_m
     Ns = saccade.value.Ns
     visual_neurons = saccade.value.visual_neurons.reshape(Ns, Ns)
     motor_neurons = saccade.value.motor_neurons.reshape(Ns, Ns)
-    visual_neurons_min = visual_neurons.min()
-    visual_neurons_max = visual_neurons.max()
-    motor_neurons_min = motor_neurons.min()
-    motor_neurons_max = motor_neurons.max()
+    neuron_min = -3.
+    neuron_max = saccade.value.theta
+    neuron_coeff = 1. / (neuron_max - neuron_min)
 
-    if visual_neurons_max - visual_neurons_min is not 0 and motor_neurons_max - motor_neurons_min is not 0:
-        visual_neurons = (visual_neurons - visual_neurons_min) / (visual_neurons_max - visual_neurons_min)
-        motor_neurons = (motor_neurons - motor_neurons_min) / (motor_neurons_max - motor_neurons_min)
+    visual_neurons = (visual_neurons - neuron_min) * neuron_coeff
+    motor_neurons = (motor_neurons - neuron_min) * neuron_coeff
 
-        visual_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(visual_neurons * 255.), "mono8")
-        motor_neurons_image = bridge.value.cv2_to_imgmsg(np.uint8(motor_neurons * 255.), "mono8")
-        visual_neurons_pub.value.publish(visual_neurons_image)
-        motor_neurons_pub.value.publish(motor_neurons_image)
+    visual_neurons_image = bridge.value.cv2_to_imgmsg(np.clip(np.uint8(visual_neurons * 255.), 0, 255), "mono8")
+    motor_neurons_image = bridge.value.cv2_to_imgmsg(np.clip(np.uint8(motor_neurons * 255.), 0, 255), "mono8")
+    visual_neurons_pub.value.publish(visual_neurons_image)
+    motor_neurons_pub.value.publish(motor_neurons_image)
+
 
     return
