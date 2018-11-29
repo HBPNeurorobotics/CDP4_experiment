@@ -1,10 +1,12 @@
-import sys, getopt
+import sys
 import rosbag
 import matplotlib.pyplot as plt
 from scipy.misc import imread
 import math
 import numpy as np
 import os
+from os import path
+import argparse
 
 def split_bag(bag):
     print '### Splitting ###'
@@ -72,10 +74,38 @@ def rates(bag, plot):
 
 def extract_durations(bag):
     target_msgs = [msg for msg in bag.read_messages('/saccade_target')]
-    timestamps = [t.timestamp.to_sec() for t in target_msgs]
-    normalized_timestamps = [(t - bag.get_start_time()) for t in timestamps]
-    durations = [j-i for i, j in zip(normalized_timestamps[:-1], normalized_timestamps[1:])]
+    normalized_timestamps = [ t.timestamp.to_sec() - bag.get_start_time() for t in target_msgs ]
+    durations = np.diff([0.] + normalized_timestamps)
     return (normalized_timestamps, durations)
+
+def first_saccades_wrt_rf(bags, amp_range, std_range, out_dir, duration = 1., human_reference=0.317):
+    all_timestamps = [
+        extract_durations(bag)[0] for bag in bags
+    ]
+
+    print("Number of trials without saccades: {}".format(len([ stamp for stamp in all_timestamps if len(stamp) == 0])))
+    x, y = np.meshgrid(amp_range, std_range)
+    first_saccades = np.zeros_like(x)
+    for i, t in enumerate(all_timestamps):
+        first_saccades[i / len(amp_range), i % len(amp_range)] = t[0] if len(t) > 0 else duration
+
+    # center around human_reference
+    first_saccades = first_saccades - human_reference
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    limit = np.max(np.abs(first_saccades))
+
+    cax = ax.contourf(x, y, first_saccades, cmap=plt.get_cmap('seismic'),
+                      levels=np.arange(-human_reference, duration-human_reference, 0.01), extend='neither',
+                      vmin=-human_reference, vmax=duration - human_reference
+    )
+    # cax = ax.imshow(im, aspect='equal', cmap=plt.get_cmap('seismic'), interpolation='nearest',
+    #                 vmin=-limit, vmax=limit)
+    cbar = fig.colorbar(cax, ticks=[0, human_reference, duration])
+    # cbar.ax.set_yticklabels(['0', '0.317', '>1'])  # vertically oriented colorbar
+    cbar.set_clim(-human_reference, duration-human_reference)
+    plt.savefig(path.join(out_dir, 'first_spikes.png'), dpi=150)
 
 def durations(bag, plot):
     print '### Fixation durations ###'
@@ -113,7 +143,6 @@ def durations(bag, plot):
     plt.savefig(bag.filename.split('.')[0] + '_duration_distribution.png', dpi=150)
     if plot:
         plt.show()
-    print
 
 def extract_amplitudes(bag):
     pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
@@ -323,62 +352,47 @@ def bins(bag, plot):
     print
 
 
-def main(argv):
+def parse_args():
+    parser = argparse.ArgumentParser(description='Analyze and plot data from CDP4 experiments')
+    parser.add_argument('--plot', action='store_true',
+                    help='plot data')
+    parser.add_argument('input_dir', metavar='dir', type=str,
+                        help='path to directory containing experiment data')
+    parser.add_argument('--general', action='store_true')
+    parser.add_argument('--split', action='store_true')
+    parser.add_argument('--rates', action='store_true')
+    parser.add_argument('--durations', action='store_true')
+    parser.add_argument('--first_saccades_rf', action='store_true')
+    parser.add_argument('--amplitudes', action='store_true')
+    parser.add_argument('--targets', action='store_true')
+    parser.add_argument('--rois', action='store_true')
+    parser.add_argument('--amp_dur', action='store_true')
+    parser.add_argument('--bins', action='store_true')
+    parser.add_argument('--all', action='store_true')
+    args = parser.parse_args()
+    return args
 
-    cmd = ''
-    plot = False
+def main():
+    args = parse_args()
 
+    print("Loading rosbags")
+    bag_names = [ f for f in os.listdir(args.input_dir) if f.endswith('.bag') ]
+    bags = [ rosbag.Bag(path.join(args.input_dir, f)) for f in bag_names ]
+    # config = np.load(args.input_dir + '_config.npy' ).item()
+    fname_len = len('experiment_')
+    n_experiments = max([
+        int(f[fname_len:-4]) for f in bag_names
+    ])
+    print("Number of trials: {}".format(n_experiments))
+
+    out_dir = path.join(args.input_dir, 'plots')
     try:
-        opts, args = getopt.getopt(argv,'hpc:',['cmd='])
-    except getopt.GetoptError as err:
-        print str(err)
-        print 'analyze.py -c <cmd> [<bagfiles>]'
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt == '-h':
-            print 'analyze.py -c <cmd> [<bagflies>]'
-            sys.exit()
-        elif opt == '-p':
-            plot = True
-        elif opt in ('-c', '--cmd'):
-            cmd = arg
+        os.makedirs(out_dir)
+    except OSError as e:
+        print(e)
 
-    bags = []
-    for bag in args:
-       bags.append(rosbag.Bag(bag))
-
-    for bag in bags:
-        print "##### Evaluating %s #####" % bag.filename
-        if cmd == 'split':
-            split_bag(bag)
-        elif cmd == 'general':
-            general(bag, plot)
-        elif cmd == 'rates':
-            rates(bag, plot)
-        elif cmd == 'durations':
-            durations(bag, plot)
-        elif cmd == 'amplitudes':
-            amplitudes(bag, plot)
-        elif cmd == 'targets':
-            targets(bag, plot)
-        elif cmd == 'rois':
-            rois(bag, plot)
-        elif cmd == 'amp_dur':
-            amp_dur(bag, plot)
-        elif cmd == 'bins':
-            bins(bag, plot)
-        elif cmd == 'all':
-            general(bag, plot)
-            rates(bag, plot)
-            durations(bag, plot)
-            amplitudes(bag, plot)
-            targets(bag, plot)
-            rois(bag, plot)
-            amp_dur(bag, plot)
-            bins(bag, plot)
-        else:
-            print 'Command not found or not specified'
-            print 'Commands: split, general, rates, durations, amplitudes, targets, rois, amp_dur, bins'
+    if args.first_saccades_rf:
+        first_saccades_wrt_rf(bags, range(10), range(10), out_dir=out_dir)
 
 if __name__ == '__main__':
-   main(sys.argv[1:])
+   main()

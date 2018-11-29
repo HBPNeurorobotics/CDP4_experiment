@@ -90,8 +90,7 @@ else
   git clone https://github.com/HBPNeurorobotics/CDP4_models.git
 fi
 
-cd CDP4_models
-./install.sh
+./create-symlinks.sh
 
 cd $HBP/GazeboRosPackages/
 catkin_make
