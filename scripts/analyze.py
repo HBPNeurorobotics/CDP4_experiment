@@ -210,7 +210,7 @@ def amp_dur(bag, plot):
     if plot:
         plt.show()
 
-def targets(bag, plot):
+def targets(bag, out_dir):
     print '### Targets ###'
     pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
     tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
@@ -221,7 +221,7 @@ def targets(bag, plot):
 
     x_limits = []
     y_limits = []
-    camera_infos = [msg.message for msg in bag.read_messages('/icub_model/left_eye_camera/image_info')]
+    camera_infos = [msg.message for msg in bag.read_messages('/icub_model/left_wide_eye_camera/camera_info')]
     camera_info = camera_infos[0]
     from image_geometry import PinholeCameraModel
     camera_model = PinholeCameraModel()
@@ -234,10 +234,11 @@ def targets(bag, plot):
 
     for p in top+right+bottom+left:
          point_eye = camera_model.projectPixelTo3dRay(p)
-         point_eye = (1., point_eye[0], -point_eye[1])
+         point_eye = point_eye / np.linalg.norm(point_eye)
 
-         pan_eye = math.atan2(point_eye[1], point_eye[0])
-         tilt_eye = math.atan2(-point_eye[2], math.sqrt(math.pow(point_eye[0], 2) + math.pow(point_eye[1], 2)))
+         pan_eye = - math.atan2(point_eye[0], point_eye[2])
+         tilt_eye = - math.atan2(point_eye[1], point_eye[2])
+
          x_limits.append(pan_eye)
          y_limits.append(tilt_eye)
 
@@ -249,25 +250,25 @@ def targets(bag, plot):
     plt.xlabel('pan (rad)')
     plt.ylabel('tilt (rad)')
 
-    plt.xticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
-    plt.yticks([0, 640, 1280], [round(-math.pi/2, 4), 0, round(math.pi/2, 4)])
+    camera_fov = 2.44346
+    plt.xticks([0, 640, 1280], [round(-camera_fov/2, 4), 0, round(camera_fov/2, 4)])
+    plt.yticks([0, 640, 1280], [round(-camera_fov/2, 4), 0, round(camera_fov/2, 4)])
 
-    x_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img[0]), x_limits)
-    y_limits = map(lambda x: (x + math.pi/2) / math.pi * len(img), y_limits)
+    x_limits = map(lambda x: (x + camera_fov/2) / math.pi * len(img[0]), x_limits)
+    y_limits = map(lambda x: (x + camera_fov/2) / math.pi * len(img), y_limits)
     plt.plot(x_limits, y_limits, 'r-')
 
     scalar = 0.8
 
-    pan_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img[0]), pan_values)
-    tilt_values = map(lambda x: (x * scalar + math.pi/2) / math.pi * len(img), tilt_values)
+    pan_values = map(lambda x: (x * scalar + camera_fov/2) / math.pi * len(img[0]), pan_values)
+    tilt_values = map(lambda x: (x * scalar + camera_fov/2) / math.pi * len(img), tilt_values)
     plt.plot(pan_values, tilt_values)
+
 
     for i, xy in enumerate(zip(pan_values, tilt_values)):
         ax.annotate(i, xy=xy, textcoords='data')
-    plt.savefig(bag.filename.split('.')[0] + '_targets.png', dpi=fig.dpi)
-    if plot:
-        plt.show()
-    print
+    experiment_name = os.path.splitext(os.path.basename(bag.filename))[0]
+    plt.savefig(path.join(out_dir, experiment_name + '_targets.png'), dpi=fig.dpi)
 
 def rois(bag, plot):
     print '### ROIs ###'
@@ -278,8 +279,8 @@ def rois(bag, plot):
     cv_bridge = CvBridge()
     rois = map(lambda x: cv_bridge.imgmsg_to_cv2(x, 'rgb8'), rois)
     background = np.uint8(np.zeros([800,800,3]))
-    pan_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background[0])), pan_values)
-    tilt_values = map(lambda x: int((x + math.pi/2) / math.pi * len(background)), tilt_values)
+    pan_values = map(lambda x: int((x + camera_fov/2) / camera_fov * len(background[0])), pan_values)
+    tilt_values = map(lambda x: int((x + camera_fov/2) / camera_fov * len(background)), tilt_values)
     for (i, roi) in enumerate(rois):
         if roi is None:
             continue
@@ -354,10 +355,10 @@ def bins(bag, plot):
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Analyze and plot data from CDP4 experiments')
-    parser.add_argument('--plot', action='store_true',
-                    help='plot data')
-    parser.add_argument('input_dir', metavar='dir', type=str,
-                        help='path to directory containing experiment data')
+    parser.add_argument('--rosbags', type=str, required=True, nargs='+',
+                        help='path to the rosbags')
+    parser.add_argument('--out', type=str, default='/tmp/cdp4_results',
+                        help='path to output folder')
     parser.add_argument('--general', action='store_true')
     parser.add_argument('--split', action='store_true')
     parser.add_argument('--rates', action='store_true')
@@ -376,23 +377,23 @@ def main():
     args = parse_args()
 
     print("Loading rosbags")
-    bag_names = [ f for f in os.listdir(args.input_dir) if f.endswith('.bag') ]
-    bags = [ rosbag.Bag(path.join(args.input_dir, f)) for f in bag_names ]
+    bags = [ rosbag.Bag(b) for b in args.rosbags ]
     # config = np.load(args.input_dir + '_config.npy' ).item()
     fname_len = len('experiment_')
-    n_experiments = max([
-        int(f[fname_len:-4]) for f in bag_names
-    ])
-    print("Number of trials: {}".format(n_experiments))
+    print("Number of trials: {}".format(len(bags)))
 
-    out_dir = path.join(args.input_dir, 'plots')
     try:
-        os.makedirs(out_dir)
+        os.makedirs(args.out)
     except OSError as e:
         print(e)
 
     if args.first_saccades_rf:
-        first_saccades_wrt_rf(bags, range(10), range(10), out_dir=out_dir)
+        first_saccades_wrt_rf(bags, range(10), range(10), out_dir=args.out)
+
+    if args.targets:
+        for b in bags:
+            targets(b, out_dir=args.out)
+
 
 if __name__ == '__main__':
    main()
