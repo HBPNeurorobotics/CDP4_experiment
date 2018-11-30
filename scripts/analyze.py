@@ -7,6 +7,7 @@ import numpy as np
 import os
 from os import path
 import argparse
+import tf
 
 def split_bag(bag):
     print '### Splitting ###'
@@ -210,63 +211,75 @@ def amp_dur(bag, plot):
     if plot:
         plt.show()
 
-def targets(bag, out_dir):
-    print '### Targets ###'
-    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
-    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
-    pan_values.insert(0, 0)
-    tilt_values.insert(0, 0)
-    print 'Pan values: ' + str(pan_values)
-    print 'Tilt values: ' + str(tilt_values)
 
-    x_limits = []
-    y_limits = []
-    camera_infos = [msg.message for msg in bag.read_messages('/icub_model/left_wide_eye_camera/camera_info')]
+def get_camera_model(bag, camera_name):
+    camera_infos = [msg.message for msg in bag.read_messages(camera_name)]
     camera_info = camera_infos[0]
     from image_geometry import PinholeCameraModel
     camera_model = PinholeCameraModel()
     camera_model.fromCameraInfo(camera_info)
+    return camera_model
 
-    top = map(lambda x: (x, 0), range(0, camera_info.width + 1, 16))
-    right = map(lambda y: (camera_info.width, y), range(0, camera_info.height + 1, 16))
-    bottom = map(lambda x: (x, camera_info.height), range(camera_info.width + 1, 0, -16))
-    left = map(lambda y: (0, y), range(camera_info.height + 1, 0, -16))
+def targets(bag, out_dir):
+    print '### Targets ###'
+    pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
+    tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
+    shoulder_points = [msg.message.point for msg in bag.read_messages('/saccade_point')]
+    shoulder_points = np.array([
+        [p.x, p.y, p.z] for p in shoulder_points
+    ])
 
-    for p in top+right+bottom+left:
-         point_eye = camera_model.projectPixelTo3dRay(p)
-         point_eye = point_eye / np.linalg.norm(point_eye)
+    pan_values.insert(0, 0)
+    tilt_values.insert(0, 0)
+    shoulder_points = np.concatenate( ([[0.,0.,1.]], shoulder_points) )
 
-         pan_eye = - math.atan2(point_eye[0], point_eye[2])
-         tilt_eye = - math.atan2(point_eye[1], point_eye[2])
-
-         x_limits.append(pan_eye)
-         y_limits.append(tilt_eye)
+    shoulder_points_2 = []
+    for p, t in zip(pan_values, tilt_values):
+        R_pan = tf.transformations.rotation_matrix(p, [0, -1, 0])
+        R_tilt = tf.transformations.rotation_matrix(t, [1, 0, 0])
+        R_eye_to_shoulder = tf.transformations.concatenate_matrices(R_pan, R_tilt)
+        target_shoulder = R_eye_to_shoulder.dot([0.,0.,1.,1.])[:3]
+        shoulder_points_2.append(target_shoulder)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
     img = imread(os.path.expanduser('~/.ros/cdp4/panorama.png'))
     plt.imshow(img)
     plt.title('Saccade targets')
-    plt.xlabel('pan (rad)')
-    plt.ylabel('tilt (rad)')
 
-    camera_fov = 2.44346
-    plt.xticks([0, 640, 1280], [round(-camera_fov/2, 4), 0, round(camera_fov/2, 4)])
-    plt.yticks([0, 640, 1280], [round(-camera_fov/2, 4), 0, round(camera_fov/2, 4)])
+    wide_camera_model = get_camera_model(bag, '/icub_model/left_wide_eye_camera/camera_info')
+    camera_model = get_camera_model(bag, '/icub_model/left_eye_camera/camera_info')
+    width, height = camera_model.fullResolution()
 
-    x_limits = map(lambda x: (x + camera_fov/2) / math.pi * len(img[0]), x_limits)
-    y_limits = map(lambda x: (x + camera_fov/2) / math.pi * len(img), y_limits)
-    plt.plot(x_limits, y_limits, 'r-')
+    # wide_camera_fov = 2.0944
+    # plt.xticks([0, wide_width/2., wide_width], [round(-wide_camera_fov/2, 4), 0, round(wide_camera_fov/2, 4)])
+    # plt.yticks([0, wide_height/2., wide_height], [round(-wide_camera_fov/2, 4), 0, round(wide_camera_fov/2, 4)])
 
-    scalar = 0.8
+    top = map(lambda x: (x, 0), range(0, width + 1, 16))
+    right = map(lambda y: (width, y), range(0, height + 1, 16))
+    bottom = map(lambda x: (x, height), range(width + 1, 0, -16))
+    left = map(lambda y: (0, y), range(height + 1, 0, -16))
 
-    pan_values = map(lambda x: (x * scalar + camera_fov/2) / math.pi * len(img[0]), pan_values)
-    tilt_values = map(lambda x: (x * scalar + camera_fov/2) / math.pi * len(img), tilt_values)
-    plt.plot(pan_values, tilt_values)
+    limit_points = []
+    for p in top+right+bottom+left:
+         point_eye = camera_model.projectPixelTo3dRay(p)
+         point_eye = point_eye / np.linalg.norm(point_eye)
+         limit_points.append(point_eye)
+    limit_pixels = np.array([ wide_camera_model.project3dToPixel(p) for p in limit_points ]).T
+    plt.plot(limit_pixels[0], limit_pixels[1], 'r-')
 
+    wide_width, wide_height = camera_model.fullResolution()
 
-    for i, xy in enumerate(zip(pan_values, tilt_values)):
+    fixation_pixels = np.array([ wide_camera_model.project3dToPixel(p) for p in shoulder_points ]).T
+    fixation_pixels_2 = np.array([ wide_camera_model.project3dToPixel(p) for p in shoulder_points_2 ]).T
+
+    plt.plot(fixation_pixels[0], fixation_pixels[1], 'b-')
+    plt.plot(fixation_pixels_2[0], fixation_pixels_2[1], 'g-')
+    for i, xy in enumerate(fixation_pixels.T):
         ax.annotate(i, xy=xy, textcoords='data')
+    for i, xy in enumerate(fixation_pixels_2.T):
+        ax.annotate(i, xy=xy, textcoords='data')
+
     experiment_name = os.path.splitext(os.path.basename(bag.filename))[0]
     plt.savefig(path.join(out_dir, experiment_name + '_targets.png'), dpi=fig.dpi)
 
@@ -275,12 +288,13 @@ def rois(bag, plot):
     pan_values = [msg.message.data for msg in bag.read_messages('/pan')]
     tilt_values = [msg.message.data for msg in bag.read_messages('/tilt')]
     rois = [msg.message for msg in bag.read_messages('/roi')]
+
     from cv_bridge import CvBridge, CvBridgeError
     cv_bridge = CvBridge()
     rois = map(lambda x: cv_bridge.imgmsg_to_cv2(x, 'rgb8'), rois)
     background = np.uint8(np.zeros([800,800,3]))
-    pan_values = map(lambda x: int((x + camera_fov/2) / camera_fov * len(background[0])), pan_values)
-    tilt_values = map(lambda x: int((x + camera_fov/2) / camera_fov * len(background)), tilt_values)
+    pan_values = map(lambda x: int((x + wide_camera_fov/2) / wide_camera_fov * len(background[0])), pan_values)
+    tilt_values = map(lambda x: int((x + wide_camera_fov/2) / wide_camera_fov * len(background)), tilt_values)
     for (i, roi) in enumerate(rois):
         if roi is None:
             continue
